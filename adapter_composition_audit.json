@@ -1,0 +1,237 @@
+{
+  "executive_conclusion": {
+    "actual_module_type": "Task-named LoRA adapters composed of per-layer lora_A[k] and lora_B[k] modules",
+    "actual_composition_level": "adapter_output_composition",
+    "training_visible_modules": "tasks 0..n inclusive when training task n (0-based)",
+    "inference_visible_modules": "all adapters listed in final checkpoint_info.json",
+    "current_task_role": "included inside the same weighted sum as old adapters",
+    "old_lora_frozen": true,
+    "old_task_vectors_frozen": false,
+    "metadata_embeddings_trainable": false,
+    "routing_parameters_trainable": true,
+    "need_new_experiments": "no"
+  },
+  "module_definition": {
+    "paper_symbol": "P_k",
+    "code_mapping": "one task-named LoRA adapter distributed across all targeted q_proj and v_proj layers",
+    "parameter_objects": [
+      "lora_A[adapter_name]",
+      "lora_B[adapter_name]"
+    ],
+    "composed_object_in_forward": "adapter output increment"
+  },
+  "lora_configuration": {
+    "rank": 4,
+    "lora_alpha": 16,
+    "stored_scaling_formula": "alpha / r",
+    "stored_scaling_value": 4.0,
+    "effective_scaling_in_active_global_path": "routing weight only; stored scaling not applied",
+    "lora_dropout": 0.1,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ],
+    "bias": "none",
+    "use_rslora": false,
+    "fan_in_fan_out": false,
+    "quantization": {
+      "enabled": true,
+      "type": "4-bit NF4",
+      "style": "QLoRA-style backbone loading"
+    }
+  },
+  "composition": {
+    "category": "C",
+    "weight_shape": "[batch_size, num_visible_tasks]",
+    "weight_normalization": "softmax(cos_sim * 8, dim=-1)",
+    "shared_across_layers": true,
+    "token_specific": false,
+    "layer_specific": false,
+    "batch_collapsed_inside_layer": true,
+    "formula": "y = W0 x + sum_k mean_batch(w[:,k]) * B_k(A_k(D_k(x)))"
+  },
+  "training_behavior": {
+    "task_indexing": "0-based",
+    "current_task_in_routing": true,
+    "current_task_in_composition": true,
+    "separate_unweighted_current_branch": false,
+    "first_task_behavior": "single visible adapter with weight 1; active path still omits stored alpha/r scaling",
+    "base_loss_components": [
+      "masked LM loss",
+      "key_encoder match_loss returned into model.forward"
+    ],
+    "trainer_added_losses": [
+      "orthogonal loss between current and previous LoRA params",
+      "L2 loss on current trainable LoRA params"
+    ],
+    "inactive_flag_note": "run script passes --matching_loss_v2, but run_continual_causal_llama2.py does not forward it into KeyEncoderConfig"
+  },
+  "inference_behavior": {
+    "rebuilds_all_adapters": true,
+    "active_adapter_passed_to_generate": "last task in checkpoint adapter list",
+    "routes_over_all_loaded_tasks": true,
+    "standalone_query_pooling": "last token hidden state",
+    "trainer_query_pooling": "avg_word_embed",
+    "training_inference_difference_exists": true
+  },
+  "gradient_flow": {
+    "base_llm": {
+      "forward": true,
+      "requires_grad": false,
+      "in_optimizer": false,
+      "updated": false
+    },
+    "current_lora": {
+      "forward": true,
+      "requires_grad": true,
+      "in_optimizer": true,
+      "updated": true
+    },
+    "old_lora": {
+      "forward": true,
+      "requires_grad": false,
+      "in_optimizer": false,
+      "updated": false
+    },
+    "task_keys_matrix": {
+      "forward": true,
+      "requires_grad": true,
+      "in_optimizer": true,
+      "updated": true,
+      "old_rows_trainable": true
+    },
+    "metadata_embeddings_buffer": {
+      "forward": true,
+      "requires_grad": false,
+      "in_optimizer": false,
+      "updated": false
+    },
+    "query_encoder": {
+      "forward": true,
+      "requires_grad": false,
+      "in_optimizer": false,
+      "updated": false
+    },
+    "softmax_match_scale_parameter": {
+      "exists_as_trainable_parameter": false
+    },
+    "dynamic_attention_trainable_parameters": {
+      "exists": false
+    },
+    "detach_w_from_task_loss_used": false
+  },
+  "checkpoint_contents": {
+    "saved_filter": "keys containing key_encoder or lora or lm_head",
+    "full_base_model_saved": false,
+    "optimizer_state_saved": false,
+    "final_snapshot_task_id": 5,
+    "final_snapshot_task_name": "zhongliuke",
+    "adapter_order_loaded_from_checkpoint_info": true
+  },
+  "architecture_consistency": {
+    "all_task_specific_lora_modules_identical": true,
+    "adapters": {
+      "neike": {
+        "A_shapes": [
+          [
+            4,
+            4096
+          ]
+        ],
+        "B_shapes": [
+          [
+            4096,
+            4
+          ]
+        ],
+        "lora_parameter_count": 2097152
+      },
+      "waike": {
+        "A_shapes": [
+          [
+            4,
+            4096
+          ]
+        ],
+        "B_shapes": [
+          [
+            4096,
+            4
+          ]
+        ],
+        "lora_parameter_count": 2097152
+      },
+      "erke": {
+        "A_shapes": [
+          [
+            4,
+            4096
+          ]
+        ],
+        "B_shapes": [
+          [
+            4096,
+            4
+          ]
+        ],
+        "lora_parameter_count": 2097152
+      },
+      "fuchanke": {
+        "A_shapes": [
+          [
+            4,
+            4096
+          ]
+        ],
+        "B_shapes": [
+          [
+            4096,
+            4
+          ]
+        ],
+        "lora_parameter_count": 2097152
+      },
+      "nanke": {
+        "A_shapes": [
+          [
+            4,
+            4096
+          ]
+        ],
+        "B_shapes": [
+          [
+            4096,
+            4
+          ]
+        ],
+        "lora_parameter_count": 2097152
+      },
+      "zhongliuke": {
+        "A_shapes": [
+          [
+            4,
+            4096
+          ]
+        ],
+        "B_shapes": [
+          [
+            4096,
+            4
+          ]
+        ],
+        "lora_parameter_count": 2097152
+      }
+    }
+  },
+  "equation_6_assessment": {
+    "status": "paper formula is under-specified and should be rewritten as adapter-output composition",
+    "sum_range_should_include_current_task": true,
+    "parameter_level_composition_correct": false,
+    "recommended_formula": "Delta h^(l,m) = sum_{k=0}^n mean_batch(w[:,k]) * B_k^(l,m) A_k^(l,m) D_k^(l,m)(h)"
+  },
+  "unconfirmed_items": [
+    "Whether any external script mutates mpeft_config.matching_loss_v2 after construction",
+    "Whether published inference numbers used the trainer evaluation path or utils/inference_utils.py",
+    "Whether omission of stored alpha/r scaling in the active global-composition path was intentional"
+  ]
+}

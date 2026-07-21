@@ -1,0 +1,5 @@
+K,task_bank_type,matching_time_ms_mean,matching_time_ms_std,aggregation_time_ms_mean,aggregation_time_ms_std,total_memr_overhead_ms_mean,total_memr_overhead_ms_std,task_related_memory_MB,note
+8,simulated,0.42885461419820786,0.05678753848761813,2.6008821471532184,0.2762962655618865,3.0297367613514266,0.3153572354606787,32.125,"simulated task-bank profiling only, not additional training"
+16,simulated,0.35242496103048326,0.0276434162271475,2.2733553059895835,0.005227834824234587,2.6257802670200667,0.029650366459978632,64.25,"simulated task-bank profiling only, not additional training"
+32,simulated,0.38320490648349126,0.009679743261849696,2.267918078104655,0.010000730050066993,2.651122984588146,0.01575246065785414,128.5,"simulated task-bank profiling only, not additional training"
+64,simulated,0.3755978679656982,0.007313620809152327,2.309995074272156,0.007912103767842632,2.685592942237854,0.0007578758068305909,257.0,"simulated task-bank profiling only, not additional training"

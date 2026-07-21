@@ -1,0 +1,7 @@
+K,learned_tasks,average_llm_score_on_seen_tasks,final_average_performance_or_FAP,FWT,FR,BWT,source
+1,IM,9.7222,9.7222,,,,short_profile_estimate
+2,"IM,S",13.7153,13.7153,,,,short_profile_estimate
+3,"IM,S,P",17.4768,17.4768,,,,short_profile_estimate
+4,"IM,S,P,GO",16.1312,16.1312,,,,short_profile_estimate
+5,"IM,S,P,GO,A",14.5716,14.5716,,,,short_profile_estimate
+6,"IM,S,P,GO,A,O",82.9,82.9,13.65,2.24,-2.48,manuscript_table5_order1

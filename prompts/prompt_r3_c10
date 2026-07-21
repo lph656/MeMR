@@ -1,0 +1,384 @@
+请在当前项目根目录中执行下面任务。严格遵守所有限制：**只用 1 张 GPU，优先使用 GPU 1；不要完整重新训练；不要破坏原始项目结构；不要覆盖已有代码、配置、数据、checkpoint、日志；所有新增脚本和结果只放到新目录 `reviewer_scalability_cost_20260702/` 下。**
+
+运行时请优先使用：
+
+```bash
+CUDA_VISIBLE_DEVICES=1 python reviewer_scalability_cost_20260702/scripts/collect_scalability_metrics.py
+```
+
+如果 GPU 1 显存不足，再改用 GPU 3 或 GPU 4：
+
+```bash
+CUDA_VISIBLE_DEVICES=3 python reviewer_scalability_cost_20260702/scripts/collect_scalability_metrics.py
+```
+
+或：
+
+```bash
+CUDA_VISIBLE_DEVICES=4 python reviewer_scalability_cost_20260702/scripts/collect_scalability_metrics.py
+```
+
+不要默认使用多卡，不要启动分布式训练，不要使用 deepspeed，不要使用 torchrun。只有在单卡完全无法加载模型时，才允许停止并报告原因，不要自动改成多卡。
+
+---
+
+任务目标：针对审稿意见 **“Scalability and computational cost are not demonstrated.”** 补充 MeMR 的可扩展性与计算成本数据。需要得到以下完整数据，并保存到统一结果文件中。
+
+## 一、绝对限制
+
+1. **禁止完整重新训练。**
+2. **禁止启动原项目 full training pipeline。**
+3. **禁止重新训练 6 个任务。**
+4. 原始完整训练一次约需 12 小时，本任务不允许执行这种训练。
+5. 所有训练相关数据优先从已有日志、checkpoint metadata、实验记录中解析。
+6. 如果训练日志缺失，只允许做短程 profiling：
+
+   * 最多运行 5–20 个 mini-batch 的 forward + backward；
+   * 仅用于估计 training peak GPU memory 和单步耗时；
+   * 不保存 checkpoint；
+   * 不写入原始输出目录；
+   * 不改变任何模型文件；
+   * profiling 后不要保留临时模型。
+7. 如果某项数据无法在不完整训练的前提下获得，请在结果文件 notes 中明确标注：
+
+   * `unavailable_without_full_retraining`
+   * 缺失原因；
+   * 可替代估算方式或已有数据来源。
+8. K>6 的实验只能做 **simulated task-bank profiling**，不能新增真实任务训练，不能改数据集，不能声明性能提升。
+
+---
+
+## 二、需要获取的数据
+
+### 1. 参数量数据
+
+统计并报告：
+
+* 当前任务 LoRA/task-specific module 参数量；
+* trainable task embedding/task vector 参数量；
+* MDTM/ATR/routing 相关可训练参数量；
+* 每个任务新增参数量；
+* K=1,2,3,4,5,6 时累计任务相关参数量；
+* frozen base PLM 参数量；
+* base PLM 不计入随任务增长参数，但要单独报告。
+
+### 2. 存储开销数据
+
+统计并报告：
+
+* K=1,2,3,4,5,6 时 task-specific modules 累计存储 MB；
+* metadata/task embeddings 存储 MB；
+* routing/MDTM/ATR 参数存储 MB；
+* task-related total storage MB；
+* frozen base model size MB；
+* 说明 task-related storage 是否随 K 近似线性增长。
+
+### 3. GPU 显存、训练时间和推理延迟
+
+统计并报告：
+
+* K=1,2,3,4,5,6 下 training peak GPU memory MB；
+* 每个任务 training time sec；
+* training time source：
+
+  * `parsed_from_existing_logs`
+  * `short_profile_estimate`
+  * `unavailable_without_full_retraining`
+* K=1,2,3,4,5,6 下 inference peak GPU memory MB；
+* K=1,2,3,4,5,6 下 average inference latency per query，单位 ms/query；
+* latency 必须拆分为：
+
+  * matching/routing time；
+  * module aggregation time；
+  * PLM generation/forward time；
+  * total inference latency；
+* 计算比例：
+
+  * matching latency ratio；
+  * aggregation latency ratio；
+  * total MeMR overhead ratio。
+
+### 4. 随任务数量增加的性能趋势
+
+统计 K=1,2,3,4,5,6 时：
+
+* learned tasks；
+* average LLM score on seen tasks；
+* final average performance 或 FAP；
+* FWT；
+* FR；
+* BWT；
+* source。
+
+优先级：
+
+1. 优先从已有 performance matrix、训练日志、评估日志、response 文档、manuscript 中提取；
+2. 如果已有 checkpoint 和评测脚本，但评测开销很小，可以只做必要的轻量评测；
+3. 不允许为了获得这些性能数据重新完整训练；
+4. 如果缺失，必须在结果中写明原因。
+
+### 5. 扩展任务数 profiling
+
+在不重新训练的前提下，额外做：
+
+* K=8；
+* K=16；
+* K=32；
+* K=64。
+
+要求：
+
+* 只测 routing/matching、module aggregation、task-related memory；
+* 对 K>6，使用已有 6 个 task representations/modules 做 deterministic copy/interpolation/small perturbation 来扩展 task bank；
+* 不新增真实训练任务；
+* 不改数据集；
+* 不做性能评估；
+* 结果必须标注：
+
+  * `simulated task-bank profiling only, not additional training`。
+
+---
+
+## 三、目录要求
+
+在项目根目录创建以下目录：
+
+```text
+reviewer_scalability_cost_20260702/
+reviewer_scalability_cost_20260702/scripts/
+reviewer_scalability_cost_20260702/results/
+reviewer_scalability_cost_20260702/logs/
+```
+
+不要在其他目录新增文件，除非只是读取已有文件。
+如果 `reviewer_scalability_cost_20260702/` 也已经存在，请不要覆盖其中内容，而是创建 `reviewer_scalability_cost_20260702_v2/`，并将所有输出路径同步替换为新目录。
+
+---
+
+## 四、新增脚本要求
+
+新增脚本：
+
+```text
+reviewer_scalability_cost_20260702/scripts/collect_scalability_metrics.py
+```
+
+如果实际创建了 `_v2` 目录，则脚本路径相应改为：
+
+```text
+reviewer_scalability_cost_20260702_v2/scripts/collect_scalability_metrics.py
+```
+
+脚本需要尽量自动识别项目中的：
+
+* 模型配置；
+* LoRA adapter；
+* task-specific modules；
+* task embeddings；
+* metadata embeddings；
+* MDTM/ATR/routing 参数；
+* checkpoint；
+* 训练日志；
+* 推理日志；
+* 评估结果文件；
+* existing response/manuscript 中已有的 performance matrix 或 scalability 数据。
+
+不要修改原始训练代码。如果必须复用项目函数，请只 import，不要改源码。
+
+---
+
+## 五、输出文件要求
+
+必须生成以下文件：
+
+```text
+reviewer_scalability_cost_20260702/results/scalability_full_results.json
+reviewer_scalability_cost_20260702/results/scalability_tables.xlsx
+reviewer_scalability_cost_20260702/results/table_parameters_storage.csv
+reviewer_scalability_cost_20260702/results/table_runtime_memory_latency.csv
+reviewer_scalability_cost_20260702/results/table_performance_vs_tasks.csv
+reviewer_scalability_cost_20260702/results/table_extended_taskbank_profiling.csv
+reviewer_scalability_cost_20260702/results/scalability_summary.md
+```
+
+如果实际创建了 `_v2` 目录，则全部输出到：
+
+```text
+reviewer_scalability_cost_20260702_v2/results/
+```
+
+---
+
+## 六、JSON 格式要求
+
+`scalability_full_results.json` 必须包含以下字段：
+
+```json
+{
+  "hardware": {
+    "gpu_name": "",
+    "gpu_count": "",
+    "cuda_visible_devices": "",
+    "cuda_version": "",
+    "torch_version": "",
+    "python_version": ""
+  },
+  "model_config": {
+    "base_model": "",
+    "lora_rank": "",
+    "lora_alpha": "",
+    "lora_dropout": "",
+    "target_modules": [],
+    "task_embedding_dim": "",
+    "dtype": "",
+    "batch_size": "",
+    "gradient_accumulation_steps": "",
+    "max_seq_length": ""
+  },
+  "parameter_and_storage": [],
+  "runtime_memory_latency": [],
+  "performance_vs_tasks": [],
+  "extended_taskbank_profiling": [],
+  "notes": []
+}
+```
+
+其中：
+
+* `gpu_count` 应为 1；
+* `cuda_visible_devices` 应记录实际使用的 GPU，例如 `"1"`、`"3"` 或 `"4"`；
+* 如果单卡无法运行，记录原因，不要自动切换多卡。
+
+---
+
+## 七、CSV 字段要求
+
+### 1. `table_parameters_storage.csv`
+
+字段必须为：
+
+```text
+K,per_task_trainable_params,current_task_module_params,task_embedding_params,routing_related_params,cumulative_task_module_params,cumulative_task_related_params,task_module_storage_MB,embedding_storage_MB,routing_storage_MB,cumulative_task_related_storage_MB,base_model_params,base_model_storage_MB
+```
+
+### 2. `table_runtime_memory_latency.csv`
+
+字段必须为：
+
+```text
+K,training_peak_gpu_memory_MB,training_time_sec_per_task,training_time_source,inference_peak_gpu_memory_MB,matching_time_ms_mean,matching_time_ms_std,aggregation_time_ms_mean,aggregation_time_ms_std,plm_time_ms_mean,plm_time_ms_std,total_inference_latency_ms_mean,total_inference_latency_ms_std,matching_latency_ratio_percent,aggregation_latency_ratio_percent,total_overhead_ratio_percent
+```
+
+### 3. `table_performance_vs_tasks.csv`
+
+字段必须为：
+
+```text
+K,learned_tasks,average_llm_score_on_seen_tasks,final_average_performance_or_FAP,FWT,FR,BWT,source
+```
+
+### 4. `table_extended_taskbank_profiling.csv`
+
+字段必须为：
+
+```text
+K,task_bank_type,matching_time_ms_mean,matching_time_ms_std,aggregation_time_ms_mean,aggregation_time_ms_std,total_memr_overhead_ms_mean,total_memr_overhead_ms_std,task_related_memory_MB,note
+```
+
+---
+
+## 八、profiling 测量规范
+
+1. inference latency：
+
+   * warmup 至少 10 次；
+   * 正式测量至少 50 次；
+   * 如果算力或时间不足，最低 warmup 3 次、正式测量 10 次，并在 notes 中说明。
+2. GPU memory：
+
+   * 使用 `torch.cuda.reset_peak_memory_stats()`；
+   * 使用 `torch.cuda.max_memory_allocated()`；
+   * 单位转换为 MB。
+3. 时间测量：
+
+   * 优先使用 `torch.cuda.Event`；
+   * 或使用 `time.perf_counter()`；
+   * GPU 测量前后必须 `torch.cuda.synchronize()`。
+4. training memory/time：
+
+   * 优先解析已有日志；
+   * 如果日志不存在，只允许短程 forward+backward profiling；
+   * 不保存 checkpoint；
+   * 不更新原始模型文件；
+   * 不写入原始 checkpoint 目录。
+5. inference：
+
+   * 使用 `torch.no_grad()`；
+   * 不保存生成结果到原项目目录。
+6. 对 K=8,16,32,64：
+
+   * 只测 task matching 与 module aggregation；
+   * 不调用完整生成评测；
+   * 不进行训练。
+
+---
+
+## 九、可参考但必须复核的数据
+
+如果项目中已有之前 response 或日志中的 scalability profiling 数据，请优先复核、整理和保存。
+
+已有 response 中可能包含类似数据格式：
+
+```text
+K = 1,2,4,6,8,16,32,64
+matching time
+aggregation time
+total MeMR overhead
+task-related memory
+```
+
+但不要盲目抄写，必须尽量从当前项目实际统计或从已有结果文件中明确提取，并在 source/notes 中标明来源。
+
+---
+
+## 十、`scalability_summary.md` 内容要求
+
+生成 `reviewer_scalability_cost_20260702/results/scalability_summary.md`，必须包括：
+
+1. 实验目的；
+2. 使用的硬件和 GPU 编号；
+3. 模型配置；
+4. 参数量与存储结论；
+5. 训练/推理显存与时间结论；
+6. K=1..6 性能趋势；
+7. K=8,16,32,64 扩展 task-bank profiling 结论；
+8. 明确说明：
+
+   * K>6 只用于成本 profiling；
+   * 不涉及新增训练；
+   * 不涉及新增性能声明。
+9. 给出一段可以直接粘贴进 response 的英文简短回复段落，格式类似：
+
+```text
+Following the reviewer’s suggestion, we added a scalability and computational-cost analysis. We reported the trainable parameters per task, cumulative task-related storage, GPU memory consumption, training time, inference latency, and performance trend as the number of learned tasks increases. The results show that the task-related storage grows approximately linearly with the number of tasks, while the matching and aggregation overhead remains small compared with the PLM forward computation. In addition, we performed a simulated task-bank profiling experiment for K=8,16,32,64 without additional training, which further shows that task matching is not the main runtime bottleneck under the tested range.
+```
+
+如果实际使用 `_v2` 目录，请同步修改 summary 中的路径说明。
+
+---
+
+## 十一、终端最终输出要求
+
+执行完成后，在终端最后打印：
+
+1. 实际使用的输出目录；
+2. 所有生成文件路径；
+3. 每张表的前几行；
+4. 是否存在缺失项；
+5. 缺失项原因；
+6. 是否发生过单卡显存不足；
+7. 实际使用的 GPU 编号；
+8. 总运行时间；
+9. 下一步建议。
+
+请现在开始执行。

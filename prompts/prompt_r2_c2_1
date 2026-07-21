@@ -1,0 +1,1139 @@
+你现在需要接续一个此前因意外中断而未完成的代码任务。请不要重新开始训练，也不要假设此前的代码修改没有完成。
+
+项目根目录为：
+
+```text
+MoCL-NAACL-huatuo-main-v3/
+```
+
+此前已经完成了元数据鲁棒性实验的训练，相关新增代码、配置、日志、元数据文件、模型参数和训练结果统一保存在：
+
+```text
+MoCL-NAACL-huatuo-main-v3/metadata_robustness_experiments/
+```
+
+现在的任务是：
+
+1. 先全面检查并理解此前已经完成的训练工作和产物；
+2. 自动识别各元数据条件对应的可用模型；
+3. 从原始测试集中固定选取50个样本；
+4. 使用完全相同的50个样本对各模型进行推理；
+5. 保存模型回答和MDTM任务匹配信息；
+6. 模仿以下原始评分脚本的评分逻辑，对模型回答进行评分：
+
+```text
+MoCL-NAACL-huatuo-main-v3/test_infer_RAG/generate_score_DS.py
+```
+
+7. 汇总生成用于后续论文分析的结果。
+
+请严格遵守以下要求。
+
+# 一、最高优先级约束
+
+1. 不得重新训练任何模型。
+2. 不得修改、覆盖、删除或重命名原始项目中的任何已有文件。
+3. 不得修改已经完成的训练结果、checkpoint、配置、元数据文件或日志。
+4. 所有新代码和新输出必须放在独立目录中，例如：
+
+```text
+MoCL-NAACL-huatuo-main-v3/metadata_robustness_experiments/inference_evaluation/
+```
+
+5. 不允许为了方便加载模型而修改原始训练代码。
+6. 优先通过import原项目模块、独立包装器、运行时参数覆盖或只读加载实现。
+7. 如果原项目存在导入路径问题，只能在新脚本中临时调整 `sys.path`，不能修改原文件。
+8. 不得静默忽略checkpoint中的参数。
+9. 不得在模型加载失败时自动退回基础模型、随机初始化模型或其他模型。
+10. 任何参数缺失、维度不匹配、元数据不对应或模型加载不完整，都必须明确报错并写入检查报告。
+11. 不得伪造推理结果或评分结果。
+12. 不得硬编码API Key。
+13. 不得在日志中打印API Key或其他敏感凭证。
+14. 首轮仅使用50个测试样本，这是一个pilot evaluation。所有目录名、报告标题和结果文件中应明确标记：
+
+```text
+pilot_50
+```
+
+15. 同一组50个样本必须用于全部元数据条件，不得为不同模型分别随机抽样。
+16. 所有模型必须使用完全一致的生成参数。
+17. 除模型checkpoint和相应元数据条件外，其他推理条件必须完全一致。
+
+# 二、先理解此前训练产物
+
+请先递归检查：
+
+```text
+MoCL-NAACL-huatuo-main-v3/metadata_robustness_experiments/
+```
+
+重点查找并理解：
+
+* 已训练的元数据条件；
+* 每个条件的输出目录；
+* `final_model`；
+* `checkpoints`；
+* LoRA adapter；
+* task-specific modules；
+* MDTM参数；
+* ATR参数；
+* trainable task representations；
+* metadata embeddings；
+* optimizer/trainer state；
+* resolved config；
+* train summary；
+* manifest；
+* state_dict keys；
+* metadata perturbation files；
+* 实际训练命令；
+* 基础模型路径；
+* tokenizer路径；
+* 任务学习顺序；
+* 当前任务数；
+* 科室名称和任务ID映射。
+
+预期可能出现的元数据条件包括：
+
+```text
+full
+none
+missing_50
+noisy_30
+stale_coarse
+institution_mix_40
+```
+
+但不要假设目录名称一定完全相同。请根据以下信息综合识别：
+
+* 目录名；
+* config；
+* train_summary；
+* manifest；
+* metadata_stats；
+* run name；
+* perturbed metadata内容。
+
+如果某个预期条件不存在，不要伪造，也不要中断全部工作。请将其标记为：
+
+```text
+missing_artifact
+```
+
+并继续处理其他可用条件。
+
+## checkpoint选择规则
+
+对每个条件按以下优先级选择推理模型：
+
+1. 已明确标记训练完成的 `final_model`；
+2. train summary或manifest中记录的final checkpoint；
+3. trainer state中训练完成后的最后checkpoint；
+4. 全局步数最大的有效checkpoint。
+
+不得单纯根据文件修改时间选择checkpoint。
+
+必须验证：
+
+* checkpoint对应的condition与当前元数据条件一致；
+* checkpoint训练状态为完成；
+* 所有应该训练的参数均存在；
+* LoRA、自定义MDTM、ATR、task modules和task representations均能正确恢复；
+* 不存在关键参数被随机初始化。
+
+生成检查报告：
+
+```text
+metadata_robustness_experiments/inference_evaluation/artifact_inspection_report.md
+```
+
+报告至少包含：
+
+| Condition | Artifact Directory | Selected Checkpoint | Base Model | Metadata File | Training Status | Loadable | Notes |
+| --------- | ------------------ | ------------------- | ---------- | ------------- | --------------- | -------- | ----- |
+
+同时生成机器可读文件：
+
+```text
+artifact_registry.json
+```
+
+每个条件至少记录：
+
+```json
+{
+  "condition": "",
+  "artifact_dir": "",
+  "selected_checkpoint": "",
+  "base_model_path": "",
+  "tokenizer_path": "",
+  "metadata_path": "",
+  "task_order": [],
+  "task_id_to_name": {},
+  "training_status": "",
+  "load_status": "",
+  "missing_keys": [],
+  "unexpected_keys": []
+}
+```
+
+# 三、分析原始推理与评分代码
+
+请全面检查原项目中已有的推理代码，特别是：
+
+```text
+test_infer_RAG/
+```
+
+以及所有可能与以下功能相关的文件：
+
+* 模型加载；
+* LoRA加载；
+* task module加载；
+* MDTM任务权重计算；
+* metadata embedding加载；
+* consultation response生成；
+* test dataset读取；
+* prompt构造；
+* generation config；
+* 结果JSON格式；
+* LLM评分。
+
+重点阅读：
+
+```text
+test_infer_RAG/generate_score_DS.py
+```
+
+需要准确识别并记录：
+
+1. 输入文件格式；
+2. 输出文件格式；
+3. 评分模型或API；
+4. 使用的环境变量；
+5. 评分提示词；
+6. 评分维度；
+7. 每个维度的分值范围；
+8. 综合分数计算方式；
+9. 是否使用参考答案；
+10. 是否进行模型间比较；
+11. 是否为绝对评分；
+12. temperature和其他调用参数；
+13. 解析评分结果的方式；
+14. 重试逻辑；
+15. 并发逻辑；
+16. 失败样本处理方法；
+17. 是否支持断点续评；
+18. 是否保存原始评分模型输出。
+
+生成：
+
+```text
+inference_evaluation/original_pipeline_analysis.md
+```
+
+必须写明新代码将复用哪些原始逻辑，以及哪些地方仅进行了工程增强。
+
+评分口径必须尽可能与 `generate_score_DS.py` 完全一致。不得未经说明擅自更换评分提示词、评分模型、评分范围或综合分数公式。
+
+如果原脚本存在明显bug，可以在新脚本中修复，但必须：
+
+* 不修改原脚本；
+* 在报告中列明原问题；
+* 说明修复方式；
+* 保持评分含义不变。
+
+# 四、创建固定的50样本测试子集
+
+新增脚本：
+
+```text
+inference_evaluation/build_pilot50_subset.py
+```
+
+从原项目实际使用的CMedCL测试集中选取50个样本。
+
+## 样本选择原则
+
+1. 只能从测试集选取。
+2. 不得从训练集、验证集或元数据文本中选取。
+3. 所有模型必须使用同一批样本。
+4. 使用固定随机种子：
+
+```text
+sample_seed = 20260627
+```
+
+5. 采用按任务或科室分层抽样。
+6. CMedCL包含六个任务时，默认分配为：
+
+```text
+9, 9, 8, 8, 8, 8
+```
+
+7. 前两个获得9个样本的任务，应按照原始任务ID或原始任务顺序确定，不得根据模型表现选择。
+8. 如果某任务不足所需数量，应报告并重新按确定性规则分配剩余额度。
+9. 不得选择重复样本。
+10. 保留样本在原测试集中的原始索引或唯一ID。
+11. 不得修改问题、参考答案或任务标签。
+12. 如果测试集已有固定排序，应先按原始ID稳定排序，再进行分层随机抽样。
+
+输出：
+
+```text
+inference_evaluation/data/pilot50_samples.jsonl
+inference_evaluation/data/pilot50_samples.csv
+inference_evaluation/data/pilot50_manifest.json
+```
+
+每个样本至少保存：
+
+```text
+sample_id
+original_index
+task_id
+task_name
+question
+reference_answer
+source_dataset
+split
+sample_seed
+```
+
+`pilot50_manifest.json`至少包含：
+
+```json
+{
+  "sample_count": 50,
+  "sample_seed": 20260627,
+  "source_dataset": "",
+  "source_split": "test",
+  "sampling_strategy": "stratified",
+  "task_counts": {},
+  "source_file_hash": "",
+  "subset_file_hash": ""
+}
+```
+
+创建后再次加载文件并验证：
+
+* 总数恰好为50；
+* 无重复；
+* 每个样本来自测试集；
+* 任务分布符合设定；
+* 文件哈希固定；
+* 重复执行脚本得到完全相同的样本。
+
+默认情况下，样本文件一旦生成就不得覆盖。只有显式传入：
+
+```text
+--force_rebuild_subset
+```
+
+才允许重新生成。
+
+# 五、编写统一模型加载器
+
+新增：
+
+```text
+inference_evaluation/model_loader.py
+```
+
+该加载器必须根据训练产物完整恢复模型，不能只加载基础LLM或LoRA。
+
+至少需要恢复：
+
+* foundation model；
+* tokenizer；
+* LoRA adapter；
+* task-specific modules；
+* MDTM参数；
+* ATR参数；
+* trainable task representations；
+* metadata embeddings或条件对应的metadata文件；
+* 其他推理所需自定义参数。
+
+模型加载后必须执行检查：
+
+1. 列出missing keys。
+2. 列出unexpected keys。
+3. 检查所有关键自定义模块是否存在。
+4. 检查任务数量。
+5. 检查task ID和task name映射。
+6. 检查metadata condition。
+7. 检查任务表示shape。
+8. 检查LoRA是否已激活。
+9. 检查模型dtype和device。
+10. 检查是否存在随机初始化参数。
+
+对于关键参数：
+
+```text
+MDTM
+ATR
+task representation
+task-specific module
+LoRA adapter
+metadata representation
+```
+
+只要加载缺失，就必须终止当前条件的推理。
+
+不要使用：
+
+```python
+strict=False
+```
+
+后直接忽略错误。
+
+如果原项目确实要求 `strict=False`，必须对missing/unexpected keys进行白名单检查。只有明确属于非训练缓存或无关状态的key才允许忽略。
+
+输出每个条件的加载报告：
+
+```text
+outputs/pilot_50/<condition>/model_load_report.json
+```
+
+# 六、编写统一推理脚本
+
+新增：
+
+```text
+inference_evaluation/run_inference.py
+```
+
+推荐命令接口：
+
+```bash
+python run_inference.py \
+  --condition missing_50 \
+  --artifact_registry artifact_registry.json \
+  --samples data/pilot50_samples.jsonl \
+  --output_dir outputs/pilot_50/missing_50 \
+  --device cuda:0
+```
+
+## 推理要求
+
+1. 只推理50个固定样本。
+2. 不访问训练集。
+3. 不修改测试数据。
+4. 使用 `model.eval()`。
+5. 使用 `torch.no_grad()` 或 `torch.inference_mode()`。
+6. 使用与原始MeMR测试代码一致的prompt模板。
+7. 使用与原始推理设置一致的generation参数。
+8. 各模型的generation参数必须完全一致。
+9. 如果原代码没有明确设置，采用确定性生成：
+
+   * `do_sample=False`；
+   * 固定 `max_new_tokens`；
+   * 不设置随机采样temperature。
+10. 不得因为某模型回答较长而使用不同截断规则。
+11. 每完成一个样本立即追加保存，支持断点续推。
+12. 已完成样本不得重复推理，除非使用 `--overwrite`。
+13. 捕获单样本错误，记录后继续，但最后报告失败数量。
+14. 生成内容不得包含模型条件名称或元数据条件名称，以避免后续评分偏差。
+15. 保存原始问题、参考答案、生成答案和路由信息。
+
+## 必须提取MDTM路由信息
+
+对于每个样本，除生成回答外，还需要保存：
+
+```text
+task_weights
+predicted_task_id
+predicted_task_name
+ground_truth_task_id
+ground_truth_task_name
+correct_task_weight
+top1_task_weight
+top2_task_weight
+top1_top2_margin
+routing_entropy
+top1_correct
+```
+
+其中：
+
+```python
+predicted_task_id = argmax(task_weights)
+top1_correct = predicted_task_id == ground_truth_task_id
+correct_task_weight = task_weights[ground_truth_task_id]
+routing_entropy = -sum(w * log(w + epsilon))
+```
+
+必须从模型实际前向计算中获取 `W_k`，不得根据生成答案反推任务权重。
+
+如果现有forward接口不返回路由权重：
+
+* 在新目录中编写只读hook或包装器；
+* 不修改原始模型代码；
+* 捕获MDTM实际计算出的权重；
+* 不重复实现一套可能不一致的伪路由逻辑。
+
+## 每个条件输出
+
+```text
+outputs/pilot_50/<condition>/
+├── inference_results.jsonl
+├── inference_results.csv
+├── inference_summary.json
+├── generation_config.json
+├── model_load_report.json
+├── logs/
+└── failures.jsonl
+```
+
+`inference_results.jsonl`每行至少包含：
+
+```json
+{
+  "condition": "",
+  "sample_id": "",
+  "original_index": 0,
+  "task_id": "",
+  "task_name": "",
+  "question": "",
+  "reference_answer": "",
+  "generated_answer": "",
+  "task_weights": {},
+  "predicted_task_id": "",
+  "predicted_task_name": "",
+  "correct_task_weight": 0.0,
+  "top1_task_weight": 0.0,
+  "top2_task_weight": 0.0,
+  "top1_top2_margin": 0.0,
+  "routing_entropy": 0.0,
+  "top1_correct": false,
+  "generation_time_seconds": 0.0,
+  "input_token_count": 0,
+  "output_token_count": 0,
+  "checkpoint": "",
+  "generation_status": "success"
+}
+```
+
+`inference_summary.json`至少包含：
+
+```json
+{
+  "condition": "",
+  "sample_count_expected": 50,
+  "sample_count_success": 0,
+  "sample_count_failed": 0,
+  "top1_matching_accuracy": 0.0,
+  "average_correct_task_weight": 0.0,
+  "average_top1_weight": 0.0,
+  "average_top1_top2_margin": 0.0,
+  "average_routing_entropy": 0.0,
+  "average_output_tokens": 0.0,
+  "average_generation_time_seconds": 0.0,
+  "per_task_metrics": {}
+}
+```
+
+每个任务的结果至少包含：
+
+```text
+sample_count
+top1_matching_accuracy
+average_correct_task_weight
+average_routing_entropy
+```
+
+# 七、四卡并行推理
+
+当前环境有4张可用GPU。
+
+新增：
+
+```text
+inference_evaluation/run_pilot50_4gpu.sh
+```
+
+脚本需要：
+
+1. 自动从 `artifact_registry.json` 中读取可用条件；
+2. 最多同时运行4个条件；
+3. 多于4个条件时分批运行；
+4. 每个进程只使用一张GPU；
+5. 使用：
+
+```bash
+CUDA_VISIBLE_DEVICES=<gpu_id>
+```
+
+6. 进程内部统一使用：
+
+```text
+cuda:0
+```
+
+7. 各条件使用独立输出目录和日志；
+8. 支持断点续推；
+9. 不覆盖已完成结果；
+10. 某个条件失败时不终止其他条件；
+11. 最终汇总各进程退出码。
+
+如果六个条件全部存在，可按以下方式自动调度：
+
+第一批：
+
+```text
+GPU 0 -> full
+GPU 1 -> none
+GPU 2 -> missing_50
+GPU 3 -> noisy_30
+```
+
+第二批：
+
+```text
+GPU 0 -> stale_coarse
+GPU 1 -> institution_mix_40
+```
+
+但实际映射应根据可用条件自动生成，不得因某条件缺失而报错。
+
+生成日志：
+
+```text
+logs/inference_<condition>.stdout.log
+logs/inference_<condition>.stderr.log
+```
+
+并提供：
+
+```text
+monitor_inference.sh
+```
+
+显示：
+
+* condition；
+* PID；
+* GPU；
+* 已完成样本数；
+* 失败样本数；
+* 最近更新时间；
+* 输出路径。
+
+# 八、编写评分脚本
+
+新增：
+
+```text
+inference_evaluation/score_pilot50.py
+```
+
+评分逻辑必须模仿：
+
+```text
+test_infer_RAG/generate_score_DS.py
+```
+
+优先复用其已有函数，但不得修改原脚本。
+
+如果直接import会触发脚本级执行或副作用，可以：
+
+* 在新脚本中抽取等价逻辑；
+* 保留原评分prompt和计算方法；
+* 在注释和报告中注明来源；
+* 不改变评分含义。
+
+## 评分输入
+
+每个条件读取：
+
+```text
+outputs/pilot_50/<condition>/inference_results.jsonl
+```
+
+评分时使用：
+
+* question；
+* reference_answer，如果原脚本使用；
+* generated_answer。
+
+不要把以下内容传给评分模型：
+
+* condition；
+* 模型名称；
+* checkpoint名称；
+* 路由准确率；
+* task weights；
+* 其他可能引起偏差的信息。
+
+## 评分要求
+
+1. 与 `generate_score_DS.py` 使用相同评分维度。
+2. 与原脚本使用相同分数范围。
+3. 与原脚本使用相同综合分数计算方式。
+4. 与原脚本使用相同judge model，除非配置不可用。
+5. 与原脚本使用相同prompt。
+6. 默认judge temperature与原脚本一致。
+7. 如果原脚本未设置temperature，明确记录API默认值。
+8. 保存评分模型原始返回内容。
+9. 保存解析后的各维度分数。
+10. 支持断点续评。
+11. 支持失败重试。
+12. 使用指数退避。
+13. 限制最大并发，避免API限流。
+14. API Key必须通过环境变量读取。
+15. API Key不存在时，不得伪造评分；应完成代码和dry-run检查后明确提示。
+16. 不得将API失败样本计为0分。
+17. 解析失败必须单独记录。
+18. 对超出范围的分数标记异常，不要静默截断。
+19. 对重复评分请求使用缓存。
+20. 默认不重新评分已成功完成的样本。
+
+建议命令：
+
+```bash
+python score_pilot50.py \
+  --condition missing_50 \
+  --input outputs/pilot_50/missing_50/inference_results.jsonl \
+  --output_dir outputs/pilot_50/missing_50/scoring \
+  --max_workers 4 \
+  --resume
+```
+
+每个条件输出：
+
+```text
+outputs/pilot_50/<condition>/scoring/
+├── scores.jsonl
+├── scores.csv
+├── score_summary.json
+├── raw_judge_responses.jsonl
+├── score_failures.jsonl
+└── scoring_config.json
+```
+
+`scores.jsonl`至少包含：
+
+```json
+{
+  "condition": "",
+  "sample_id": "",
+  "safety_score": null,
+  "professionalism_score": null,
+  "fluency_score": null,
+  "average_llm_score": null,
+  "judge_model": "",
+  "judge_status": "success",
+  "raw_response_reference": ""
+}
+```
+
+字段名称应根据 `generate_score_DS.py` 的实际定义调整，但必须保留原评分维度。
+
+`score_summary.json`至少包含：
+
+```json
+{
+  "condition": "",
+  "total_samples": 50,
+  "successfully_scored": 0,
+  "failed_samples": 0,
+  "average_safety": 0.0,
+  "average_professionalism": 0.0,
+  "average_fluency": 0.0,
+  "average_llm_score": 0.0,
+  "per_task_scores": {}
+}
+```
+
+如果原评分脚本中的综合分数不是简单平均，必须使用原公式。
+
+# 九、评分一致性验证
+
+新增一个评分dry-run或单元测试：
+
+```text
+tests/test_score_pipeline.py
+```
+
+至少验证：
+
+1. 可以正确读取原脚本预期的输入格式；
+2. 新脚本构造的评分prompt与原脚本一致；
+3. 模拟合法评分响应能够正确解析；
+4. 非法响应会进入失败记录；
+5. 分数范围检查有效；
+6. 重复运行不会重复调用已缓存样本；
+7. 综合分数公式与原脚本一致；
+8. condition不会出现在传给judge的prompt中。
+
+如果环境中具备有效API凭证，可对1个样本执行真实评分smoke test。
+
+未经确认，不要立即对全部300个左右的“模型×样本”请求进行远程API调用。先完成代码、dry-run和1样本smoke test，并在最终报告中给出完整运行命令。
+
+如果原项目中评分本来就是本地模型而非远程API，则可以执行本地smoke test，但仍不要在未确认资源占用前自动启动全部评分。
+
+# 十、结果汇总
+
+新增：
+
+```text
+inference_evaluation/aggregate_pilot50_results.py
+```
+
+汇总所有成功完成的条件。
+
+输出：
+
+```text
+outputs/pilot_50/summary/
+├── overall_results.csv
+├── per_task_results.csv
+├── routing_confusion_matrices/
+├── matched_sample_comparison.csv
+├── evaluation_summary.json
+└── evaluation_report.md
+```
+
+## overall_results.csv至少包含
+
+```text
+condition
+checkpoint
+successful_inference_samples
+successful_scoring_samples
+top1_matching_accuracy
+average_correct_task_weight
+average_top1_weight
+average_top1_top2_margin
+average_routing_entropy
+average_safety
+average_professionalism
+average_fluency
+average_llm_score
+average_output_tokens
+average_generation_time_seconds
+```
+
+## per_task_results.csv至少包含
+
+```text
+condition
+task_id
+task_name
+sample_count
+top1_matching_accuracy
+average_correct_task_weight
+average_routing_entropy
+average_safety
+average_professionalism
+average_fluency
+average_llm_score
+```
+
+## matched_sample_comparison.csv
+
+要求每一行对应同一个样本和一个condition，便于比较不同模型在完全相同样本上的结果。
+
+至少包含：
+
+```text
+sample_id
+task_name
+condition
+predicted_task_name
+top1_correct
+correct_task_weight
+routing_entropy
+safety_score
+professionalism_score
+fluency_score
+average_llm_score
+generated_answer
+```
+
+## 路由混淆矩阵
+
+对每个condition分别生成：
+
+```text
+routing_confusion_matrices/<condition>.csv
+```
+
+行是真实任务，列是预测任务。
+
+同时可生成PNG热力图，但不得把图表生成作为核心代码完成的前提。
+
+# 十一、建议增加的诊断指标
+
+在不改变评分口径的前提下，可以额外计算以下本地指标：
+
+1. 生成失败率；
+2. 空回答率；
+3. 平均回答长度；
+4. 重复回答比例；
+5. Top-1任务匹配准确率；
+6. 平均正确任务权重；
+7. 平均路由熵；
+8. Top-1与Top-2权重差；
+9. 各科室匹配准确率；
+10. 路由混淆矩阵。
+
+这些指标全部基于已有推理结果计算，不需要额外模型调用。
+
+# 十二、配置一致性检查
+
+创建：
+
+```text
+inference_evaluation/verify_inference_consistency.py
+```
+
+检查所有condition的推理设置。
+
+除以下内容外，其他设置必须一致：
+
+* condition；
+* checkpoint；
+* metadata；
+* output directory；
+* GPU。
+
+必须一致的内容包括：
+
+* 样本文件及其SHA256；
+* prompt模板；
+* max input length；
+* max new tokens；
+* decoding strategy；
+* temperature；
+* top-p；
+* top-k；
+* repetition penalty；
+* tokenizer；
+* task order；
+* 模型基础架构；
+* dtype。
+
+生成：
+
+```text
+outputs/pilot_50/summary/inference_config_comparison.csv
+```
+
+如果发现生成参数不一致，应停止汇总并报错。
+
+# 十三、运行脚本
+
+请生成以下脚本：
+
+```text
+inference_evaluation/prepare_pilot50.sh
+inference_evaluation/run_pilot50_4gpu.sh
+inference_evaluation/run_scoring.sh
+inference_evaluation/aggregate_results.sh
+inference_evaluation/run_all_after_confirmation.sh
+```
+
+其中：
+
+## prepare_pilot50.sh
+
+执行：
+
+* artifact检查；
+* 50样本构建；
+* 配置检查；
+* 模型加载smoke test。
+
+## run_pilot50_4gpu.sh
+
+执行四卡并行推理。
+
+## run_scoring.sh
+
+对已成功完成推理的条件执行评分，支持：
+
+```text
+--dry-run
+--resume
+--max-workers
+--conditions
+```
+
+## aggregate_results.sh
+
+汇总推理和评分结果。
+
+## run_all_after_confirmation.sh
+
+按顺序执行：
+
+1. prepare；
+2. inference；
+3. scoring；
+4. aggregate。
+
+但不要在本次任务中自动运行远程全量评分，除非明确确认API凭证、模型和调用成本均已准备好。
+
+# 十四、恢复与断点续跑
+
+所有推理和评分脚本都必须支持中断恢复。
+
+## 推理恢复
+
+依据：
+
+```text
+condition + sample_id
+```
+
+判断样本是否已经成功完成。
+
+## 评分恢复
+
+依据：
+
+```text
+judge_model + prompt_hash + sample_id + generated_answer_hash
+```
+
+判断是否已经评分。
+
+如果生成答案发生改变，必须重新评分。
+
+任何JSONL写入都应：
+
+* 每个样本完成后立即flush；
+* 避免全部完成后一次写入；
+* 对损坏的最后一行提供恢复机制。
+
+# 十五、测试要求
+
+新增：
+
+```text
+inference_evaluation/tests/
+```
+
+至少包含：
+
+```text
+test_artifact_discovery.py
+test_subset_reproducibility.py
+test_model_load_validation.py
+test_inference_output_schema.py
+test_routing_metrics.py
+test_score_parser.py
+test_resume_logic.py
+test_config_consistency.py
+```
+
+正式推理前执行：
+
+1. 训练产物发现测试；
+2. checkpoint加载测试；
+3. 固定样本复现测试；
+4. 单模型单样本推理；
+5. MDTM权重提取测试；
+6. JSONL断点续写测试；
+7. 评分prompt和parser dry-run；
+8. API可用时执行1样本真实评分。
+
+生成：
+
+```text
+inference_evaluation/preflight_report.md
+```
+
+只有模型加载和单样本推理检查通过的condition才允许进入50样本推理。
+
+# 十六、README和最终报告
+
+新增：
+
+```text
+inference_evaluation/README.md
+```
+
+必须写明：
+
+1. 此前训练已经完成，本目录不负责训练；
+2. 如何识别训练产物；
+3. 如何构建固定50样本；
+4. 如何运行单条件推理；
+5. 如何运行四卡并行推理；
+6. 如何执行评分dry-run；
+7. 如何执行正式评分；
+8. 如何断点续推和续评；
+9. 如何汇总结果；
+10. 各输出文件的含义；
+11. API环境变量要求；
+12. 如何扩展到全部测试集。
+
+最终请输出一份：
+
+```text
+inference_evaluation/implementation_report.md
+```
+
+内容至少包括：
+
+* 检查到的元数据条件；
+* 每个条件选用的checkpoint；
+* 缺失的实验条件；
+* 原训练产物是否完整；
+* 新增文件列表；
+* 固定50样本的任务分布；
+* 推理参数；
+* 评分脚本与 `generate_score_DS.py` 的一致性说明；
+* 已完成的测试；
+* smoke test结果；
+* 尚未执行的步骤；
+* 单条件推理命令；
+* 四卡推理命令；
+* 评分命令；
+* 汇总命令。
+
+# 十七、执行边界
+
+本次任务请完成：
+
+1. 项目检查；
+2. 训练产物注册；
+3. 代码编写；
+4. 测试代码编写；
+5. 固定50样本生成；
+6. 单模型单样本推理smoke test；
+7. 评分dry-run；
+8. API可用时最多执行1个样本的真实评分测试；
+9. 生成完整运行脚本和报告。
+
+本次不要：
+
+* 重新训练；
+* 删除或覆盖训练产物；
+* 自动启动全部远程评分请求；
+* 修改 `generate_score_DS.py`；
+* 修改原项目源码；
+* 使用不同样本比较不同模型；
+* 忽略自定义参数加载错误。
+
+# 十八、最终回复格式
+
+完成后，请在终端回复中按以下顺序汇报：
+
+1. 已发现的训练条件。
+2. 每个条件选择的checkpoint。
+3. 是否存在缺失或损坏的训练产物。
+4. 新增文件列表。
+5. 50样本的科室分布。
+6. 模型加载检查结果。
+7. 单样本推理smoke test结果。
+8. 评分dry-run结果。
+9. 是否执行了真实评分smoke test。
+10. 四卡推理命令。
+11. 正式评分命令。
+12. 汇总命令。
+13. 所有尚未解决的问题。
+
+任何未确认的信息必须标记为“未确认”，不得猜测。

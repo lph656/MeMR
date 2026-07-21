@@ -1,0 +1,34 @@
+{
+  "methods": [
+    {
+      "name": "SequentialFT",
+      "aliases": ["baseline", "seq", "sequential", "sequential_finetuning"],
+      "checkpoint": null,
+      "enabled": true
+    },
+    {
+      "name": "MoCL",
+      "aliases": ["mocl", "MoCL"],
+      "checkpoint": null,
+      "enabled": true
+    },
+    {
+      "name": "MeMR_wo_MDTM",
+      "aliases": ["wo_mdtm", "w/o_mdtm", "memr_wo_mdtm", "MeMR_wo_MDTM"],
+      "checkpoint": null,
+      "enabled": true
+    },
+    {
+      "name": "MeMR_wo_ATR",
+      "aliases": ["wo_atr", "w/o_atr", "memr_wo_atr", "MeMR_wo_ATR"],
+      "checkpoint": null,
+      "enabled": true
+    },
+    {
+      "name": "MeMR",
+      "aliases": ["memr", "MeMR"],
+      "checkpoint": null,
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+You are working on an existing MeMR project. Please add a lightweight scalability profiling experiment to evaluate how MeMR scales as the number of tasks increases. This experiment is for responding to a reviewer comment about computational and memory scalability with increasing task numbers.
+
+Important constraints:
+
+1. Do NOT change the original training, evaluation, model, or dataset code behavior.
+2. Do NOT overwrite any existing checkpoint, result, log, or source file.
+3. Add new code only, preferably under a new directory such as `experiments/scalability/` or `tools/scalability/`.
+4. The experiment must be inference/profiling only. It must NOT retrain MeMR.
+5. Use only GPU 0 if CUDA is available. Set `CUDA_VISIBLE_DEVICES=0` or explicitly use `cuda:0`.
+6. All generated results must be saved to a timestamped output directory, for example:
+   `results/scalability_profiling/YYYYMMDD_HHMMSS/`
+7. The experiment should be fully reproducible. Save the config, random seed, task-bank construction details, timing results, memory results, generated tables, plots, and a short markdown summary.
+
+Purpose of the experiment:
+The goal is NOT to evaluate medical QA performance on newly trained tasks. The goal is to isolate and measure the additional runtime and memory overhead caused by maintaining, matching, and aggregating an increasing number of task representations and frozen task-specific modules in MeMR.
+
+Reviewer concern:
+As the number of tasks increases, MeMR maintains and matches against an expanding set of task representations and frozen modules. We need to analyze computational and memory scalability. We need to answer when task matching or module aggregation might become a bottleneck.
+
+Please implement a new script:
+`experiments/scalability/run_scalability_profiling.py`
+
+The script should:
+
+1. Load the trained MeMR model and its existing learned task representations, metadata embeddings, and frozen task-specific modules if available.
+2. If the exact project APIs are different, inspect the existing codebase and adapt the imports accordingly.
+3. If some task metadata or module objects are stored differently, write robust helper functions to locate or extract:
+
+   * task metadata embeddings (V_{\text{meta},k})
+   * trainable task embeddings (E_{\text{task},k})
+   * frozen task-specific modules (P_k)
+4. If loading a full PLM is too costly, the script should still measure matching and aggregation costs using the actual MeMR task representations and module tensors. However, when the PLM can be loaded, also measure total forward/prefill time.
+
+Task numbers to profile:
+Use:
+`K_list = [1, 2, 4, 6, 8, 16, 32, 64]`
+
+Task-bank expansion strategy:
+Do NOT simply create repeated Python references to the same module, because that would not reflect true memory scaling.
+Instead, implement an independent synthetic task-bank expansion strategy as follows:
+
+A. For K <= number of real learned tasks:
+Use the first K real task entries.
+
+B. For K > number of real learned tasks:
+Construct additional task entries using checkpoint-derived synthetic frozen modules and representations.
+Each synthetic task must have:
+
+* an independent task ID,
+* an independently allocated task representation tensor,
+* an independently allocated metadata embedding tensor,
+* an independently allocated frozen module tensor or module copy.
+
+Use a more reasonable strategy than plain duplication:
+
+1. Round-robin select two real task entries (a) and (b).
+2. Generate the synthetic metadata embedding and task embedding by deterministic interpolation plus small perturbation:
+   [
+   V_{\text{meta,new}} = \alpha V_{\text{meta},a} + (1-\alpha)V_{\text{meta},b} + \epsilon
+   ]
+   [
+   E_{\text{task,new}} = \alpha E_{\text{task},a} + (1-\alpha)E_{\text{task},b} + \epsilon
+   ]
+   where (\alpha) is deterministically generated from the synthetic task index, for example values from `[0.25, 0.5, 0.75]`, and (\epsilon \sim N(0, 1e-4)) with a fixed seed.
+3. Generate synthetic frozen module parameters similarly by interpolating the corresponding parameter tensors of two real frozen modules:
+   [
+   P_{\text{new}} = \alpha P_a + (1-\alpha)P_b + \epsilon
+   ]
+   If module interpolation is difficult because the project stores modules as complex objects, then use `copy.deepcopy` to create an independent frozen module from one real module and add a tiny deterministic in-place perturbation to floating-point parameter tensors under `torch.no_grad()`. This makes the module independently allocated and not a simple reference copy.
+4. Freeze all synthetic modules with `requires_grad=False`.
+5. Clearly save the generation recipe and random seeds in `task_bank_generation.json`.
+6. Make clear in comments and output summary that this task-bank expansion is used only for computational and memory profiling, not for QA accuracy evaluation.
+
+Profiling metrics:
+For each K in K_list, measure the following metrics:
+
+1. Task matching latency:
+   `matching_time_ms_per_query`
+   This should include only MDTM-related matching operations:
+
+   * query embedding to metadata similarity,
+   * sigmoid-based dynamic fusion weight calculation,
+   * dynamic task embedding construction,
+   * cosine similarity with dynamic task embeddings,
+   * softmax to obtain task matching weights.
+
+   It should NOT include module aggregation or PLM generation.
+
+2. Module aggregation latency:
+   `aggregation_time_ms_per_query`
+   This should include only:
+   [
+   P'*n = \sum*{k=1}^{K} W_k P_k
+   ]
+   or the equivalent aggregation over LoRA / prompt / task-module tensors in the implementation.
+   It should NOT include task matching or PLM generation.
+
+3. Total MeMR overhead:
+   `total_memr_overhead_ms_per_query = matching_time + aggregation_time`
+
+4. Optional PLM forward/prefill latency if feasible:
+   `plm_forward_time_ms_per_query`
+   Use fixed input length and fixed output behavior to avoid generation-length randomness. Prefer measuring one forward/prefill pass rather than open-ended generation.
+   If full PLM loading is not feasible, set this field to null and explain in the summary.
+
+5. Total inference latency if feasible:
+   `total_inference_time_ms_per_query = matching_time + aggregation_time + plm_forward_time`
+   If PLM forward is unavailable, set this field to null.
+
+6. Matching overhead ratio if total inference is available:
+   [
+   matching_ratio = matching_time / total_inference_time * 100
+   ]
+
+7. Aggregation overhead ratio if total inference is available:
+   [
+   aggregation_ratio = aggregation_time / total_inference_time * 100
+   ]
+
+8. Aggregation-to-matching ratio:
+   [
+   agg_match_ratio = aggregation_time / matching_time
+   ]
+   This is important because it directly indicates whether module aggregation is more likely to become a bottleneck than task matching.
+
+9. Task representation memory:
+   `task_repr_memory_mb`
+   Include task embeddings and metadata embeddings.
+
+10. Frozen module memory:
+    `frozen_module_memory_mb`
+    Count parameter memory of all frozen task-specific modules in the task bank for this K.
+
+11. Total task-related memory:
+    `task_related_memory_mb = task_repr_memory_mb + frozen_module_memory_mb`
+
+12. Peak GPU memory:
+    `peak_gpu_memory_mb`
+    Use `torch.cuda.reset_peak_memory_stats()` and `torch.cuda.max_memory_allocated()` when CUDA is available.
+    Also save `torch.cuda.max_memory_reserved()` as `peak_gpu_reserved_mb`.
+
+Timing methodology:
+
+1. Use `torch.cuda.Event(enable_timing=True)` for GPU timing.
+2. Add `torch.cuda.synchronize()` before and after timed regions.
+3. Use warm-up iterations, for example `warmup_steps=10`.
+4. Use repeated profiling iterations, for example `profile_steps=50` or configurable.
+5. Report mean and standard deviation over repeated runs.
+6. Repeat each K at least 3 times or use `num_repeats=3`.
+7. Use fixed random seed, default 42.
+8. Use `torch.no_grad()` during profiling.
+9. Set model and task modules to eval mode.
+10. Use batch size 1 by default.
+
+Input/query embeddings:
+
+1. Prefer using actual CMedCL test examples if the project has a convenient dataloader.
+2. If loading the dataset is cumbersome, use a small fixed set of representative consultation queries hardcoded in the script, for example 16 short Chinese medical consultation questions, and process them repeatedly.
+3. To isolate task matching and aggregation overhead, allow a `--precompute_query_embeddings` option. If enabled, compute query embeddings once and reuse them for timing matching/aggregation.
+4. If the project has an existing query encoder, use it. Otherwise, for profiling matching/aggregation only, generate deterministic random query embeddings with the same dimension as task representations and save this fact in the summary. Prefer actual query encoder if available.
+
+Bottleneck criterion:
+Define and save the following criterion:
+A component is considered a practical runtime bottleneck if its latency exceeds 10% of total inference latency. If full PLM forward latency is unavailable, report relative bottleneck analysis using `agg_match_ratio` and total MeMR overhead.
+Memory bottleneck should be discussed based on linear growth of task-related memory and available GPU memory.
+
+Outputs to save:
+Create a timestamped output directory and save:
+
+1. `config.json`
+   Include:
+
+   * K_list
+   * seed
+   * device
+   * warmup_steps
+   * profile_steps
+   * num_repeats
+   * dtype
+   * checkpoint path used
+   * whether PLM forward was measured
+   * task-bank expansion strategy
+
+2. `task_bank_generation.json`
+   Include:
+
+   * real number of tasks
+   * synthetic number of tasks
+   * generation rule
+   * interpolation alphas
+   * perturbation scale
+   * random seed
+   * source task IDs used for each synthetic task
+
+3. `raw_results.json`
+   Include all per-run, per-K timing and memory values.
+
+4. `scalability_results.csv`
+   One row per K, with mean and standard deviation fields:
+
+   * K
+   * matching_time_mean_ms
+   * matching_time_std_ms
+   * aggregation_time_mean_ms
+   * aggregation_time_std_ms
+   * total_memr_overhead_mean_ms
+   * total_memr_overhead_std_ms
+   * plm_forward_time_mean_ms
+   * plm_forward_time_std_ms
+   * total_inference_time_mean_ms
+   * total_inference_time_std_ms
+   * matching_ratio_mean_percent
+   * aggregation_ratio_mean_percent
+   * agg_match_ratio_mean
+   * task_repr_memory_mb
+   * frozen_module_memory_mb
+   * task_related_memory_mb
+   * peak_gpu_allocated_mb
+   * peak_gpu_reserved_mb
+
+5. `complexity_analysis.csv`
+   Include:
+
+   * component
+   * main_operation
+   * complexity
+   * scalability_implication
+
+6. `table_complexity_analysis.md`
+   Markdown table ready to paste into the response letter.
+
+7. `table_scalability_results.md`
+   Markdown table ready to paste into the response letter.
+
+8. `table_scalability_results_latex.tex`
+   LaTeX table ready for manuscript.
+
+9. `fig_scalability_latency.png`
+   Plot latency vs K with curves:
+
+   * task matching time
+   * module aggregation time
+   * total MeMR overhead
+
+10. `fig_scalability_memory.png`
+    Plot memory vs K with curves:
+
+* task representation memory
+* frozen module memory
+* total task-related memory
+* peak GPU memory if available
+
+11. `fig_scalability_combined.png`
+    Two subplots in one figure:
+
+* (a) latency vs number of tasks
+* (b) memory vs number of tasks
+
+12. `summary_for_response.md`
+    A concise English summary suitable for the reviewer response. It should include:
+
+* one paragraph explaining that the experiment is profiling-only and does not retrain additional tasks;
+* one paragraph explaining the synthetic task-bank expansion strategy;
+* one paragraph summarizing complexity:
+  matching (O(Kd)), aggregation (O(K|P|)), memory (O(Kd+K|P|));
+* one paragraph summarizing observed results from the generated CSV, including:
+  current six-task overhead,
+  whether matching or aggregation is larger,
+  when bottleneck criterion is reached or not reached,
+  memory growth trend;
+* one paragraph about future scalability improvements:
+  sparse top-r routing, module pruning, module merging, hierarchical task indexing, and shared low-rank module design.
+
+Plot requirements:
+
+1. Use matplotlib.
+2. Use English labels.
+3. Use clear axis labels:
+
+   * x-axis: Number of Tasks K
+   * y-axis for latency: Latency (ms/query)
+   * y-axis for memory: Memory (MB)
+4. Save figures at 300 dpi.
+5. Do not use seaborn.
+6. Do not use overly small font sizes.
+7. Include legends.
+
+Implementation details:
+
+1. Add command-line arguments:
+
+   * `--checkpoint_path`
+   * `--output_dir`
+   * `--k_list`
+   * `--device`
+   * `--seed`
+   * `--warmup_steps`
+   * `--profile_steps`
+   * `--num_repeats`
+   * `--batch_size`
+   * `--dtype`
+   * `--measure_plm_forward`
+   * `--precompute_query_embeddings`
+   * `--perturb_scale`
+   * `--max_query_length`
+2. Default device should be `cuda:0` if available, otherwise CPU.
+3. Ensure the script can run with:
+   `CUDA_VISIBLE_DEVICES=0 python experiments/scalability/run_scalability_profiling.py --checkpoint_path <PATH_TO_MEMR_CHECKPOINT> --measure_plm_forward`
+4. If `--measure_plm_forward` fails due to memory or missing project API, the script should continue measuring matching and aggregation and save a warning in `summary_for_response.md`.
+5. The script should print progress to console and save `run.log`.
+6. Include robust error handling with clear messages.
+7. Include comments explaining each profiling block.
+8. Do not import unavailable libraries except standard Python, torch, pandas, numpy, matplotlib, and existing project modules.
+9. If pandas is not available, fall back to Python csv module.
+
+Most important:
+Please make sure the final output contains enough information to answer the reviewer’s question directly:
+
+* How does computational cost grow with task number?
+* How does memory cost grow with task number?
+* Is task matching or module aggregation more likely to become the bottleneck?
+* Is the current six-task setting computationally manageable?
+* At what approximate task scale does the bottleneck criterion begin to be approached, if observed?
+
+After implementation, provide:
+
+1. A list of newly added files.
+2. The exact command to run the profiling experiment on GPU 0.
+3. A brief explanation of how the generated tables and figures should be used in the reviewer response.

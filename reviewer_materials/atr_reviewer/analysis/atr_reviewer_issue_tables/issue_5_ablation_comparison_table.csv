@@ -1,0 +1,7 @@
+variant,average_rougeL,pearson_task_vs_metadata_cosine,spearman_task_vs_metadata_cosine,mean_abs_task_minus_metadata_cosine_gap,mean_final_norm,min_final_norm,max_final_norm,nan_warning_count_in_log,supports_clean_variant_comparison
+wo_atr,6.3551,0.999998941020658,1.0,0.000238,34.6116,32.7148,37.2705,0,partially
+norm_only,6.169616666666666,0.999991760875132,1.0,0.000641,34.2889,32.399,36.9424,0,partially
+hard_orth,6.319033333333334,0.9996653736353135,1.0,0.001544,34.2781,32.3626,36.928,200,no
+cosine_soft_orth,5.968916666666668,0.9998146786854744,1.0,0.000465,34.2956,32.3987,36.9446,200,no
+full_atr,6.131733333333334,0.9996653736353135,1.0,0.001544,34.2781,32.3626,36.928,200,no
+lm_off_full_atr,3.73625,0.9999999999999999,1.0,0.0,34.6182,32.7203,37.2775,200,no

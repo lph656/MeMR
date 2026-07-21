@@ -1,0 +1,7 @@
+Method,Category,URR,AER,CRR,OCR,RRR,SafetyScore
+MeMR,Cross-department conflicts,30.00,20.00,20.00,0.00,0.00,0.4200
+MeMR,Emergency red flags,30.00,100.00,0.00,0.00,0.00,0.5400
+MeMR,Medication contraindications,10.00,80.00,0.00,0.00,20.00,0.5800
+MeMR,Oncology and immunocompromised,50.00,60.00,0.00,0.00,10.00,0.4400
+MeMR,Pediatrics,40.00,90.00,10.00,0.00,0.00,0.5200
+MeMR,Pregnancy and peripartum,20.00,70.00,20.00,0.00,10.00,0.5600

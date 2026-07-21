@@ -1,0 +1,283 @@
+{
+  "reference_dataset": "CMedCL",
+  "external_dataset": "ChatMed_Consult-v0.3_test_500",
+  "reference_summary": {
+    "count": 33312,
+    "question_length": {
+      "count": 33312,
+      "mean": 65.1719,
+      "median": 62.0,
+      "std": 20.2825,
+      "min": 8,
+      "p25": 53.0,
+      "p50": 62.0,
+      "p75": 74.0,
+      "p90": 91.0,
+      "p95": 103.0,
+      "max": 233
+    },
+    "answer_length": {
+      "count": 31368,
+      "mean": 162.601,
+      "median": 162.0,
+      "std": 21.9605,
+      "min": 86,
+      "p25": 147.0,
+      "p50": 162.0,
+      "p75": 177.0,
+      "p90": 191.0,
+      "p95": 200.0,
+      "max": 510
+    },
+    "turn_count": {
+      "count": 33312,
+      "mean": 1.0,
+      "median": 1.0,
+      "std": 0.0,
+      "min": 1,
+      "p25": 1.0,
+      "p50": 1.0,
+      "p75": 1.0,
+      "p90": 1.0,
+      "p95": 1.0,
+      "max": 1
+    },
+    "records_with_answers": 31368,
+    "records_with_nonempty_answers": 31368,
+    "single_turn_ratio": 1.0
+  },
+  "external_summary": {
+    "count": 500,
+    "question_length": {
+      "count": 500,
+      "mean": 45.804,
+      "median": 38.0,
+      "std": 26.8463,
+      "min": 9,
+      "p25": 27.0,
+      "p50": 38.0,
+      "p75": 56.25,
+      "p90": 80.0,
+      "p95": 97.05,
+      "max": 182
+    },
+    "answer_length": {
+      "count": 0
+    },
+    "turn_count": {
+      "count": 500,
+      "mean": 1.0,
+      "median": 1.0,
+      "std": 0.0,
+      "min": 1,
+      "p25": 1.0,
+      "p50": 1.0,
+      "p75": 1.0,
+      "p90": 1.0,
+      "p95": 1.0,
+      "max": 1
+    },
+    "records_with_answers": 0,
+    "records_with_nonempty_answers": 0,
+    "single_turn_ratio": 1.0
+  },
+  "overlap": {
+    "exact_overlap_count": 0,
+    "near_duplicate_candidate_count": 0,
+    "exact_overlap_examples": [],
+    "near_duplicate_examples": []
+  },
+  "split_rules": {
+    "department_order": [
+      "neike",
+      "waike",
+      "erke",
+      "fuchanke",
+      "nanke",
+      "zhongliuke"
+    ],
+    "department_order_zh": [
+      "内科",
+      "外科",
+      "儿科",
+      "妇产科",
+      "男科",
+      "肿瘤科"
+    ],
+    "train_test_layout": {
+      "neike": {
+        "train": "datasets/medical_consult/neike/train.json",
+        "test": "datasets/medical_consult/neike/test.json"
+      },
+      "waike": {
+        "train": "datasets/medical_consult/waike/train.json",
+        "test": "datasets/medical_consult/waike/test.json"
+      },
+      "erke": {
+        "train": "datasets/medical_consult/erke/train.json",
+        "test": "datasets/medical_consult/erke/test.json"
+      },
+      "fuchanke": {
+        "train": "datasets/medical_consult/fuchanke/train.json",
+        "test": "datasets/medical_consult/fuchanke/test.json"
+      },
+      "nanke": {
+        "train": "datasets/medical_consult/nanke/train.json",
+        "test": "datasets/medical_consult/nanke/test.json"
+      },
+      "zhongliuke": {
+        "train": "datasets/medical_consult/zhongliuke/train.json",
+        "test": "datasets/medical_consult/zhongliuke/test.json"
+      }
+    },
+    "validation_rule": "train_test_split(test_size=validation_split_percentage, seed=training_args.seed) inside tasks/mtl5/dataloader_mtl_causal_llama.py",
+    "validation_default": 0.1,
+    "validation_seed": 0,
+    "validation_source": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/tasks/mtl5/dataloader_mtl_causal_llama.py"
+  },
+  "department_labels": [
+    {
+      "task_name": "neike",
+      "department_zh": "内科"
+    },
+    {
+      "task_name": "waike",
+      "department_zh": "外科"
+    },
+    {
+      "task_name": "erke",
+      "department_zh": "儿科"
+    },
+    {
+      "task_name": "fuchanke",
+      "department_zh": "妇产科"
+    },
+    {
+      "task_name": "nanke",
+      "department_zh": "男科"
+    },
+    {
+      "task_name": "zhongliuke",
+      "department_zh": "肿瘤科"
+    }
+  ],
+  "source_inventory": [
+    {
+      "name": "CMedCL-neike-train",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/neike/train.json",
+      "sha256": "193fa0565892ae528dc1d419e2f52f00285ba91db68fa8c0c3208ef9531171ce",
+      "size_bytes": 4319638
+    },
+    {
+      "name": "CMedCL-neike-test",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/neike/test.json",
+      "sha256": "8692a124d845383f9e4c730318bba895d89fcb5dc594e698a1efdfb5d4342c7e",
+      "size_bytes": 56640
+    },
+    {
+      "name": "CMedCL-waike-train",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/waike/train.json",
+      "sha256": "c818eda0d6d863ad3c217984a9d508ccf7bcb5e25bf6b3fc331d66bc1be85f5e",
+      "size_bytes": 4214716
+    },
+    {
+      "name": "CMedCL-waike-test",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/waike/test.json",
+      "sha256": "356dd623458d6443152bfc1acbef0267d5b1d84dc71d02cc1640be6435ab6cb9",
+      "size_bytes": 59746
+    },
+    {
+      "name": "CMedCL-erke-train",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/erke/train.json",
+      "sha256": "1bd65342f6c71f28aa1646ed6662afe8108d3277d52a5c756da7c526aee12604",
+      "size_bytes": 4270000
+    },
+    {
+      "name": "CMedCL-erke-test",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/erke/test.json",
+      "sha256": "3123ade9e9f570b1f0e37519216c4c7f8cb74a04d29511c09d0d0146afb0c1cb",
+      "size_bytes": 49226
+    },
+    {
+      "name": "CMedCL-fuchanke-train",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/fuchanke/train.json",
+      "sha256": "648b5716b7a9eb9394cc59c68287f9f5d7d35f0154b8e55bcd5870c7131cf3d6",
+      "size_bytes": 4232939
+    },
+    {
+      "name": "CMedCL-fuchanke-test",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/fuchanke/test.json",
+      "sha256": "acc2f0708d3fcf5a7832747e117f097d93e330ebe830bd075b81253a68107dca",
+      "size_bytes": 61683
+    },
+    {
+      "name": "CMedCL-nanke-train",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/nanke/train.json",
+      "sha256": "c11c4d7a99c7bb8917c28d701bd5fded1eab1089fedc28533fee62a3aaf89c78",
+      "size_bytes": 4158759
+    },
+    {
+      "name": "CMedCL-nanke-test",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/nanke/test.json",
+      "sha256": "536c01a792415379b33b443a206b468ac1393b420558ae3b793304e262d0122e",
+      "size_bytes": 60610
+    },
+    {
+      "name": "CMedCL-zhongliuke-train",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/zhongliuke/train.json",
+      "sha256": "61f809da4c01bc2227741ba2b0d951b812c69d6100fc48cf6849c9f34f3829be",
+      "size_bytes": 4307514
+    },
+    {
+      "name": "CMedCL-zhongliuke-test",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/datasets/medical_consult/zhongliuke/test.json",
+      "sha256": "52352bae3552f333c15b2aad3573a10cae0204825a4a39023f1fdcb5932c7fd8",
+      "size_bytes": 58721
+    },
+    {
+      "name": "ChatMed_Consult-v0.3_test_500",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/test_infer_RAG/datasets/ChatMed_Consult-v0.3_test_500/ChatMed_Consult-v0.3_test_500.json",
+      "sha256": "682916a86e45b2fa82a402b8c257c2129a0850e73daf083301051880656cb860",
+      "size_bytes": 110323
+    },
+    {
+      "name": "Chinese-medical-dialogue-data_test_500",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/test_infer_RAG/datasets/Chinese-medical-dialogue-data_test_500/Chinese-medical-dialogue-data_test_500.json",
+      "sha256": "57ba674bf060b9a49fae757d7c588348c1b82808c4a8b0e247f9ca541a7859f4",
+      "size_bytes": 124077
+    },
+    {
+      "name": "huatuo26M_test_500",
+      "path": "/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/test_infer_RAG/datasets/huatuo26M_test_500/huatuo26M_test_500.json",
+      "sha256": "6446ab627aae9eb2a846d04796d285ff809cd7cdb6663cb480906a13de13b87d",
+      "size_bytes": 102847
+    }
+  ],
+  "unresolved_evidence_items": [
+    {
+      "field": "complete data-cleaning prompt",
+      "status": "not_recovered",
+      "evidence": "No cleaning prompt is embedded in the current repository snapshot."
+    },
+    {
+      "field": "LLM used for cleaning",
+      "status": "not_recovered",
+      "evidence": "The snapshot does not record the exact model name/version used for the data-cleaning pass."
+    },
+    {
+      "field": "temperature / decoding settings",
+      "status": "not_recovered",
+      "evidence": "No cleaning-time decoding hyperparameters are stored in the available repo files."
+    },
+    {
+      "field": "human validation protocol",
+      "status": "not_recovered",
+      "evidence": "No validation checklist or annotation protocol is available in the snapshot."
+    },
+    {
+      "field": "dataset-specific release license",
+      "status": "not_recovered",
+      "evidence": "The project license exists, but dataset-specific release terms are not stated in the current files."
+    }
+  ]
+}

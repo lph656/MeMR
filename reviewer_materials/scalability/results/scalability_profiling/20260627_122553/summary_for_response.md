@@ -1,0 +1,9 @@
+This experiment is profiling-only and does not retrain additional tasks. We load an existing MeMR checkpoint, reuse the learned task representations and frozen task-specific modules, and isolate the runtime and memory overhead introduced by task matching and module aggregation as the task bank grows.
+
+For K larger than the 6 real tasks available in the checkpoint, we construct an independent synthetic task bank by deterministically interpolating pairs of real metadata embeddings, task embeddings, and frozen module tensors, then adding a small fixed-seed perturbation. This synthetic expansion is used only for scalability profiling and not for QA accuracy evaluation.
+
+The measured complexity is consistent with the expected scaling behavior: task matching follows O(Kd), module aggregation follows O(K|P|), and task-related memory follows O(Kd + K|P|). Because the frozen module tensor bank is much larger than the task-representation bank, aggregation and task-related memory are the main quantities that can become dominant as K increases.
+
+In the current profiling run based on `/home/THJ1/Taohj/Liph/Continual-Learning/MoCL-NAACL-huatuo-main-v3/checkpoints_continual_keshi_llama/order1_compose_peft/snapshots/task_5_zhongliuke_train_end_20260626_123739`, the six-task setting remains computationally manageable: total MeMR overhead is 2.820 ms/query at K=6, with aggregation larger than the other MeMR component. At the largest measured scale K=64, task-related memory reaches 257.000 MB and peak GPU allocated memory reaches 8784.220 MB. Under the measured settings, neither matching nor aggregation exceeded the 10% practical bottleneck criterion of total inference latency.
+
+Potential future improvements include sparse top-r routing, module pruning, module merging, hierarchical task indexing, and more strongly shared low-rank module design. PLM forward profiling was successfully included using a fixed prefill-only forward pass.

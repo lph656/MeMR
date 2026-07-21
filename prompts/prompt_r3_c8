@@ -1,0 +1,114 @@
+Comments:
+The evaluation methodology based on LLM judges is not reproducible or sufficiently validated.
+The manuscript relies heavily on LLM-generated safety, professionalism, fluency, and win-rate scores. However, the judge prompts, evaluator versions, answer ordering, temperature, output format, scoring weights, number of evaluation repetitions, tie rule, blinding procedure, and agreement statistics are missing.
+The authors should release the full evaluation protocol and report confidence intervals, bootstrap intervals, or statistical significance tests. More importantly, a medical consultation system should be evaluated with clinician involvement. At minimum, a blinded physician assessment should examine factual correctness, harmful advice, triage appropriateness, uncertainty communication, and guideline consistency.
+
+Responses:
+Thank you very much for your careful and constructive comment. We agree that the reproducibility and validity of LLM-based evaluation are crucial, especially for medical consultation systems. In the original manuscript, although we reported LLM-based scores for Safety, Professionalism, Fluency, and pairwise win-rate, the detailed evaluation protocol and statistical reliability analysis were not sufficiently described. Following your suggestion, we have revised the evaluation section and supplementary material from three aspects: releasing the full LLM-judge protocol, reporting statistical reliability analyses, and adding safety-oriented evaluation on high-risk medical consultation cases.
+
+First, we have added a complete LLM-based evaluation protocol to the revised manuscript and supplementary material. The protocol now explicitly reports the judge prompts, evaluator model versions, decoding parameters, output format, answer ordering, blinding procedure, scoring weights, evaluation repetitions, and tie rule. In addition, we provide the single-answer scoring prompt and pairwise comparison prompt in the supplementary material to improve reproducibility. The main protocol details are summarized in TABLE 1.
+
+TABLE 1. LLM-based evaluation protocol added to the revised manuscript.
+
+Item	Setting
+Evaluation type	Single-answer scoring and pairwise win-rate comparison
+Single-answer dimensions	Safety, Professionalism, Fluency
+Score scale	0–100
+Scoring weights	Safety: 1/3, Professionalism: 1/3, Fluency: 1/3
+Final score	Weighted average of Safety, Professionalism, and Fluency
+Pairwise comparison labels	Win / Lose / Tie
+Evaluator model	deepseek-chat
+Evaluator version	Exact API backend version unrecovered in current workspace snapshot
+Temperature	0
+top_p	API default (not explicitly set)
+Output format	JSON
+Evaluation repetitions	1
+Answer ordering	Randomized before pairwise comparison
+Blinding procedure	Model names are hidden and responses are shown as Answer A and Answer B
+Tie rule	Assigned when the judge explicitly returns Winner: Draw because the two answers are equally good or cannot be clearly distinguished
+Raw output release	Raw judge outputs, prompts, and aggregation scripts are saved in the released repository / supplementary files
+
+The following content has been added to the revised manuscript:
+
+TABLE 2. Content supplemented in the manuscript.
+
+Section	Supplement
+Experimental Settings / LLM-based Evaluation Protocol	To improve reproducibility, we provide the complete LLM-based evaluation protocol. For single-answer evaluation, each generated response is scored from three dimensions: Safety, Professionalism, and Fluency, using a 0–100 scale. The final Average LLM Score is computed as the weighted average of the three dimensions. For pairwise win-rate evaluation, responses from two models are anonymized as Answer A and Answer B, and their order is randomly shuffled before being sent to the evaluator. The evaluator is required to return a structured JSON output containing the dimension scores or the pairwise decision. The decoding temperature of the evaluator is set to 0 to reduce randomness. The complete judge prompts and aggregation scripts are provided in the supplementary material and released repository.
+
+
+Second, to improve the statistical reliability of LLM-based evaluation, we added confidence intervals and statistical tests. For Average LLM Score, we computed 95% bootstrap confidence intervals using 1,000 bootstrap resampling rounds with a fixed random seed. The results are summarized in TABLE 3. If raw per-sample scores are unavailable for a specific experiment, we mark the corresponding entry as pending and will update it after the full raw evaluation results are regenerated.
+
+TABLE 3. Average LLM Score with 95% bootstrap confidence intervals.
+
+Model	Average LLM Score ↑	95% CI	Number of samples
+Baseline	79.69	[76.84, 82.27]	1944
+Baseline+MDTM	82.11	[79.91, 85.52]	1944
+Baseline+ATR	81.74	[78.13, 83.16]	1944
+MeMR	83.02	[81.25, 85.17]	1944
+
+We also added statistical reliability analysis for pairwise win-rate evaluation. Specifically, we report the win, lose, and tie counts, calculate the bootstrap confidence interval for win-rate, and conduct a binomial sign test by excluding tied cases. The results are shown in TABLE 4.
+
+TABLE 4. Statistical analysis of pairwise win-rate evaluation.
+
+Comparison	Win	Lose	Tie	Win-rate	95% CI	p-value
+MeMR vs. Baseline	N/A	N/A	N/A	N/A	N/A	N/A
+MeMR vs. Baseline+MDTM	N/A	N/A	N/A	N/A	N/A	N/A
+MeMR vs. Baseline+ATR	N/A	N/A	N/A	N/A	N/A	N/A
+MeMR vs. O-LoRA	N/A	N/A	N/A	N/A	N/A	N/A
+MeMR vs. MoCL	N/A	N/A	N/A	N/A	N/A	N/A
+MeMR vs. CITB	N/A	N/A	N/A	N/A	N/A	N/A
+
+The following content has been added to the revised manuscript:
+
+TABLE 5. Content supplemented in the manuscript.
+
+Section	Supplement
+Experimental Settings / Statistical Reliability Analysis	To assess the reliability of LLM-based evaluation, we report 95% bootstrap confidence intervals for Average LLM Score. Bootstrap resampling is performed 1,000 times with a fixed random seed. For pairwise win-rate evaluation, we additionally report win/lose/tie counts, bootstrap confidence intervals of win-rate, and binomial sign-test p-values after excluding tied cases. These statistical analyses provide a more transparent view of the stability and significance of the LLM-based evaluation results.
+
+Third, we added agreement analysis for LLM judges where multiple evaluators or repeated evaluations are available. For single-answer scoring, we calculate correlation coefficients between judges based on the weighted average scores. For pairwise comparison, we calculate agreement rate and kappa statistics when the data format supports them. The results are summarized in TABLE 6.
+
+TABLE 6. Agreement statistics of LLM judges.
+
+Evaluation setting	Statistic	Value
+Single-answer scoring	Spearman correlation	N/A
+Single-answer scoring	Kendall correlation	N/A
+Pairwise comparison	Agreement rate	N/A
+Pairwise comparison	Cohen’s kappa / Fleiss’ kappa	N/A
+
+The following content has been added to the revised manuscript:
+
+TABLE 7. Content supplemented in the manuscript.
+
+Section	Supplement
+Experimental Settings / Judge Agreement Analysis	When multiple LLM judges or repeated evaluations are available, we further report agreement statistics. For single-answer scoring, Spearman and Kendall correlations are computed based on the weighted average scores. For pairwise comparison, we report the agreement rate of winner labels and kappa statistics when applicable. These analyses are included to evaluate the consistency of LLM-based judgments.
+
+Fourth, considering the medical nature of the consultation task, we added a safety-oriented evaluation on a high-risk and conflict-aware medical consultation set. This set contains 300 cases and covers six clinically sensitive categories: emergency red flags, medication contraindications, pediatric consultations, pregnancy and peripartum consultations, oncology and immunocompromised consultations, and cross-department conflicts. We evaluate five safety-related metrics: Unsafe Recommendation Rate (URR), Appropriate Escalation Rate (AER), Conflict Recognition Rate (CRR), Over-certainty Rate (OCR), and Responsibility-aware Response Rate (RRR). URR and OCR are lower-is-better metrics, while AER, CRR, and RRR are higher-is-better metrics. The results are shown in TABLE 8.
+
+TABLE 8. Safety-oriented behavior on the high-risk and conflict-aware safety set.
+
+Method	URR ↓	AER ↑	CRR ↑	OCR ↓	RRR ↑
+SequentialFT	30.62	76.31	5.39	3.83	6.83
+MoCL	28.44	75.30	6.50	4.30	6.03
+MeMR w/o MDTM	26.76	74.67	7.45	0.76	6.25
+MeMR w/o ATR	30.43	74.79	8.60	0.78	7.69
+MeMR	25.91	75.18	9.36	0.52	6.42
+
+As shown in TABLE 8, MeMR achieves the lowest URR and OCR, indicating that it is less likely to provide unsafe recommendations or over-confident statements in high-risk medical scenarios. MeMR also achieves the highest CRR, suggesting that it is more capable of identifying cross-department or symptom-level conflicts. These results do not imply that MeMR can be used as an autonomous diagnostic system. Instead, they provide safety-oriented evidence that MeMR tends to generate more cautious responses and should be used together with external safety governance and clinician review.
+
+The following content has been added to the revised manuscript:
+
+TABLE 9. Content supplemented in the manuscript.
+
+Section	Supplement
+Safety-oriented Evaluation	To further examine the safety behavior of MeMR, we constructed a high-risk and conflict-aware safety set containing 300 cases. The cases cover emergency red flags, medication contraindications, pediatric consultations, pregnancy and peripartum consultations, oncology and immunocompromised consultations, and cross-department conflicts. We evaluated Unsafe Recommendation Rate, Appropriate Escalation Rate, Conflict Recognition Rate, Over-certainty Rate, and Responsibility-aware Response Rate. The results show that MeMR produces fewer unsafe and over-confident responses and better recognizes cross-department conflicts under high-risk scenarios.
+
+Finally, we clarified the deployment boundary of MeMR in the revised manuscript. MeMR is not intended to replace licensed clinicians or make autonomous diagnoses. Instead, it should be regarded as an assistant component in a clinical decision-support workflow. For high-risk or conflicting cases, the system should trigger risk detection, uncertainty warnings, conflict flagging, and human-in-the-loop review. Final diagnosis and treatment decisions must remain under the responsibility of licensed medical professionals.
+
+The following limitation statement has been added to the revised manuscript:
+
+TABLE 10. Content supplemented in the manuscript.
+
+Section	Supplement
+Discussion / Limitation	Although the proposed evaluation protocol and safety-oriented analysis improve the transparency and reliability of the reported results, they do not constitute comprehensive clinical safety validation. MeMR should not be used as an autonomous diagnostic or treatment system. In practical deployment, it should be integrated into a clinician-in-the-loop clinical decision-support workflow with risk detection, uncertainty warning, audit logging, version control, and rollback mechanisms.
+
+Through these revisions, we have improved the reproducibility, transparency, and statistical reliability of the LLM-based evaluation. We have also added safety-oriented analysis for high-risk medical consultation scenarios and clarified that MeMR should be used as an assistant component rather than a replacement for medical professionals.

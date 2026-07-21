@@ -1,0 +1,12 @@
+Comments:
+The mathematical description of MDTM is incomplete and does not fully support the cold-start claim.
+According to Equation (1), the learned task embedding is initialized as the metadata embedding. Consequently, at initialization, Equation (3) reduces to the metadata embedding irrespective of the dynamic fusion coefficient. Thus, the dynamic fusion mechanism does not alter the representation at the cold-start stage. This should be discussed explicitly, and the cold-start benefit should be demonstrated experimentally rather than assumed.
+In addition, the gate in Equation (2) is defined as the sigmoid of cosine similarity. Since cosine similarity is bounded between -1 and 1, the gate is constrained to a relatively narrow interval. This prevents decisive selection of either metadata or learned representation. The authors should justify this design, define whether a temperature or bias is used, and compare it against a learnable gating network, a temperature-scaled gate, and a metadata-only baseline.
+Responses:
+
+现在我的手稿存在上面一个评审意见，我需要点对点回复该评审意见，根据该评审意见，总结我需要做几个实验。
+如果不训练就可以完美回复这条评审意见就不做实验，如果训练才可以，那就训练。
+目前我共有5张卡可并行运行。结合上述内容给出新增实验的代码，新增实验要保证不侵犯原始项目结构以及原始项目代码。
+完成新增实验代码的完整代码撰写后，给出每个终端（最多可以选择5个，因为有5张卡可用，编号分别为0，1，2，3，4）的执行命令分别是什么。
+需要明确我们做了上面这些实验得到哪些实验结果，实验结果保存在哪里。都需要解释清楚。
+最后，要保证这次运行后得到的实验结果能够充分回复该评论。

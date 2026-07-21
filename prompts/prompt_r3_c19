@@ -1,0 +1,235 @@
+你现在位于一个论文项目的原始代码仓库中。请不要修改任何训练代码、模型代码、数据处理代码或实验结果，只允许新增一个可复现性信息整理文件。
+
+审稿人意见如下：
+
+“Clearly state the data and code release version, commit hash, environment, hardware, random seeds, and model checkpoints.”
+
+请你全面扫描当前项目，为回复该审稿意见整理所有必要信息，并保存为：
+
+`REPRODUCIBILITY_INFO_FOR_REVIEW.md`
+
+如果方便，也可以同时生成一个结构化文件：
+
+`reproducibility_info.json`
+
+请完成以下任务：
+
+1. Code release information
+
+   * 获取当前 Git 分支；
+   * 获取当前 commit hash；
+   * 获取最近一次 commit 的时间、作者和 commit message；
+   * 获取 tag / release version，如果没有正式 tag，请记录 `No formal release tag found`；
+   * 检查当前工作区是否 clean；
+   * 如果存在未提交修改，请列出被修改、新增或删除的文件，但不要展示敏感内容；
+   * 给出可用于论文中的代码版本描述，例如：
+     `Code version: GitHub repository at commit <commit_hash>, branch <branch_name>, accessed/released on <date>.`
+
+2. Data release information
+
+   * 搜索 README、data 目录、scripts、configs、logs、preprocess 脚本，整理项目实际使用的数据集；
+   * 明确列出所有数据集名称，例如 CMedCL、ChatMed_Consult、Cmedia、Huatuo26M 等；
+   * 对每个数据集整理：
+
+     * 数据来源或下载链接；
+     * 数据版本、commit hash 或下载日期；
+     * 数据文件路径；
+     * train / validation / test split；
+     * 每个 split 的样本数量；
+     * 如果按任务/科室划分，请列出每个任务/科室的样本数量；
+     * 数据预处理脚本名称；
+     * 是否有过滤、清洗、重采样、格式转换等操作；
+     * 如可能，请计算主要数据文件的 SHA256 checksum；
+   * 如果某些信息无法自动确定，请在文件中明确写为 `TBD`，不要编造。
+
+3. Environment information
+
+   * 获取操作系统信息；
+   * 获取 Python 版本；
+   * 获取 CUDA 版本；
+   * 获取 cuDNN 版本，如果能检测到；
+   * 获取 PyTorch 版本；
+   * 获取 transformers、datasets、accelerate、peft、deepspeed、numpy、scipy、scikit-learn 等关键依赖版本；
+   * 如果项目使用 conda，请导出环境摘要；
+   * 如果项目使用 pip，请导出 `pip freeze`；
+   * 如果存在 requirements.txt、environment.yml、pyproject.toml、setup.py，请读取并总结；
+   * 将完整依赖列表附在文件末尾，或保存为可复现性文件中的附录。
+
+4. Hardware information
+
+   * 获取 GPU 型号、GPU 数量、显存大小；
+   * 获取 CPU 型号；
+   * 获取系统内存大小；
+   * 获取训练时可能使用的分布式设置，例如单卡/多卡、DDP、DeepSpeed、ZeRO stage；
+   * 搜索训练脚本和日志，确认 batch size、gradient accumulation、precision/fp16/bf16、训练 epoch、learning rate 等关键训练设置。
+
+5. Random seeds
+
+   * 全局搜索以下关键词：
+     `seed`, `random_seed`, `set_seed`, `manual_seed`, `numpy.random.seed`, `torch.manual_seed`, `torch.cuda.manual_seed_all`
+   * 整理项目实际使用的随机种子；
+   * 区分：
+
+     * Python random seed；
+     * NumPy seed；
+     * PyTorch CPU seed；
+     * PyTorch CUDA seed；
+     * HuggingFace Trainer seed；
+     * DataLoader worker seed；
+   * 如果脚本中没有显式设置某类 seed，请明确写为 `Not explicitly specified in the current code`；
+   * 如果存在多个实验顺序或多次运行，请列出每个实验配置对应的 seed。
+
+6. Model checkpoints
+
+   * 搜索 checkpoint、outputs、save、model_name_or_path、resume_from_checkpoint、pretrained_model、base_model、adapter、LoRA、prompt、module 等关键词；
+   * 整理所有模型相关信息：
+
+     * base LLM 名称；
+     * base LLM 来源，例如 Hugging Face model id 或本地路径；
+     * base LLM revision / commit hash，如果能找到；
+     * tokenizer 名称和版本；
+     * fine-tuned checkpoint 路径；
+     * MeMR / MDTM / ATR / task-specific module / adapter / LoRA 等 checkpoint 路径；
+     * 每个 checkpoint 的文件大小；
+     * 如可行，计算 checkpoint 文件或目录中主要权重文件的 SHA256 checksum；
+   * 不要复制或移动大模型文件，只记录路径、大小和 checksum；
+   * 如果 checkpoint 没有公开释放，请标注：
+     `The trained checkpoints will be released together with the code/data repository upon acceptance` 或 `TBD`，根据项目实际情况判断，不要编造。
+
+7. Reproduction commands
+
+   * 从 README、scripts、shell 文件和配置文件中整理：
+
+     * 数据预处理命令；
+     * 训练命令；
+     * 评估命令；
+     * 复现实验表格所需命令；
+   * 如果存在多个任务顺序，例如 disciplinary order、random order、challenging order，请分别列出命令和配置文件；
+   * 如果命令无法完整确定，请给出目前能确定的部分，并标注缺失项为 `TBD`。
+
+8. Output format
+   请将 `REPRODUCIBILITY_INFO_FOR_REVIEW.md` 写成以下结构：
+
+   # Reproducibility Information for Reviewer
+
+   ## 1. Code Release Version
+
+   * Repository:
+   * Branch:
+   * Commit hash:
+   * Tag / release:
+   * Commit date:
+   * Working tree status:
+   * Files with uncommitted changes:
+
+   ## 2. Data Release Version
+
+   使用表格列出：
+   Dataset | Source | Version / Commit / Download Date | Local Path | Split | Number of Samples | Preprocessing Script | SHA256 / Notes
+
+   ## 3. Experimental Environment
+
+   使用表格列出：
+   Item | Value
+
+   至少包括：
+   OS, Python, CUDA, cuDNN, PyTorch, transformers, datasets, accelerate, peft, deepspeed, GPU driver.
+
+   ## 4. Hardware
+
+   使用表格列出：
+   Component | Value
+
+   至少包括：
+   GPU model, number of GPUs, GPU memory, CPU, RAM.
+
+   ## 5. Random Seeds
+
+   使用表格列出：
+   Component | Seed Value | Source File / Line | Notes
+
+   ## 6. Model Checkpoints
+
+   使用表格列出：
+   Model / Module | Source or Path | Version / Revision | File Size | SHA256 | Release Status
+
+   ## 7. Key Training and Evaluation Settings
+
+   使用表格列出：
+   Experiment | Config File | Command | Batch Size | Learning Rate | Epochs | Precision | Notes
+
+   ## 8. Reproduction Commands
+
+   分别列出：
+
+   * Data preprocessing
+   * Training
+   * Evaluation
+   * Table/Figure reproduction
+
+   ## 9. Missing or Unconfirmed Items
+
+   请集中列出所有无法自动确认的信息，统一标记为 `TBD`，并说明需要人工补充什么。
+
+   ## 10. Suggested Text for Manuscript
+
+   根据你整理到的信息，草拟一段可以加入论文 “Experimental Settings” 或 “Data and Code Availability” 部分的英文文本，要求简洁、正式、可直接用于论文修改。
+
+   ## 11. Suggested Response to Reviewer
+
+   根据你整理到的信息，草拟一段英文点对点回复，格式如下：
+
+   Responses:
+   Thank you for your valuable suggestion. We agree that providing detailed reproducibility information is important for improving the transparency and reliability of our work. In the revised manuscript, we have added detailed information regarding the data and code release version, commit hash, experimental environment, hardware configuration, random seeds, and model checkpoints. Specifically, ...
+
+请在执行过程中尽量使用命令自动获取真实信息，例如但不限于：
+
+```bash
+git rev-parse HEAD
+git branch --show-current
+git describe --tags --always --dirty
+git status --short
+git log -1 --pretty=fuller
+python --version
+pip freeze
+conda env export --no-builds
+nvidia-smi
+uname -a
+lscpu
+free -h
+```
+
+请全局搜索这些关键词以定位配置和 checkpoint 信息：
+
+```bash
+seed
+random_seed
+set_seed
+manual_seed
+model_name_or_path
+pretrained_model
+checkpoint
+save_pretrained
+save_steps
+output_dir
+resume_from_checkpoint
+LoRA
+lora
+adapter
+peft
+deepspeed
+bf16
+fp16
+batch_size
+learning_rate
+num_train_epochs
+```
+
+重要要求：
+
+* 不要编造任何信息；
+* 无法确认的内容统一写 `TBD`；
+* 不要泄露 API key、token、服务器用户名、绝对私密路径等敏感信息；
+* 不要复制、移动或上传大模型 checkpoint；
+* 不要删除或修改已有代码；
+* 最终只新增 `REPRODUCIBILITY_INFO_FOR_REVIEW.md`，可选新增 `reproducibility_info.json`。

@@ -1,0 +1,16 @@
+Comments:
+The proposed claims require targeted experiments.
+The paper claims improved task matching, robustness to noise, cold-start resistance, and cross-domain knowledge sharing. These properties are not directly measured. The authors should add:
+(a) top-1 and top-k task-routing accuracy;
+(b) routing calibration and entropy analysis;
+(c) controlled input-noise and metadata-corruption experiments;
+(d) cold-start evaluation on newly introduced tasks;
+(e) unseen medical-department testing;
+(f) ablations with noisy metadata and noisy task labels; and
+(g) comparisons between full weighted routing and top-k routing.
+
+现在我的手稿存在上面一个评审意见，我需要点对点回复该评审意见，根据该评审意见，总结我需要做几个实验。
+目前我共有5张卡可并行运行。结合上述内容给出新增实验的代码，新增实验要保证不侵犯原始项目结构以及原始项目代码。
+完成新增实验代码的完整代码撰写后，给出每个终端（最多可以选择5个，因为有5张卡可用，编号分别为0，1，2，3，4）的执行命令分别是什么。
+需要明确我们做了上面这些实验得到哪些实验结果，实验结果保存在哪里。都需要解释清楚。
+最后，要保证这次运行后得到的实验结果能够充分回复该评论。

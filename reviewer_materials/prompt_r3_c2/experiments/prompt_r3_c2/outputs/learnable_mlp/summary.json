@@ -1,0 +1,41 @@
+{
+  "variant": "learnable_mlp",
+  "checkpoint_dir": "checkpoints_continual_keshi_llama/order1_compose_peft/snapshots/task_5_zhongliuke_train_end_20260626_123739",
+  "meta_embeddings_path": "metadata_embeddings/keshi_meta_embeddings.pt",
+  "eval_data": [
+    "experiments/reviewer_0629/data/routing_reference_eval.jsonl",
+    "experiments/reviewer_0629/data/holdout_zhongliuke_reference_eval.jsonl"
+  ],
+  "train_samples": 2400,
+  "dev_samples": 600,
+  "eval_summaries": {
+    "routing_reference_eval": {
+      "num_samples": 360,
+      "top1_accuracy": 0.6277777777777778,
+      "top3_accuracy": 0.8888888888888888,
+      "ece": 0.40458205069104825,
+      "brier_score": 0.7561594566853634,
+      "mean_entropy": 1.772585966341917,
+      "mean_correct_task_weight": 0.2086213612722026,
+      "mean_top1_confidence": 0.22319572708672947,
+      "mean_gate_alpha": 0.9067756533622742,
+      "std_gate_alpha": 0.0008577868575230241,
+      "min_gate_alpha": 0.9016797542572021,
+      "max_gate_alpha": 0.9083008766174316
+    },
+    "holdout_zhongliuke_reference_eval": {
+      "num_samples": 120,
+      "top1_accuracy": 0.625,
+      "top3_accuracy": 0.9416666666666667,
+      "ece": 0.4045962121337652,
+      "brier_score": 0.7575454371143017,
+      "mean_entropy": 1.774437251087197,
+      "mean_correct_task_weight": 0.20756748989224433,
+      "mean_top1_confidence": 0.22040378786623477,
+      "mean_gate_alpha": 0.9066426753997803,
+      "std_gate_alpha": 0.0008164487662725151,
+      "min_gate_alpha": 0.902122974395752,
+      "max_gate_alpha": 0.9082620143890381
+    }
+  }
+}

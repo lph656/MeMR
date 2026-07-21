@@ -1,0 +1,88 @@
+针对我的手稿，审稿人提出了以下意见：
+ATR is insufficiently justified and may produce degenerate representations.
+The orthogonality term is based on unnormalized inner products, while the additional regularizer directly minimizes the Frobenius norm of the task-representation matrix. These two losses can both be minimized by shrinking task representations toward zero. The paper needs a theoretical explanation or empirical evidence that the language-model objective prevents such collapse.
+The authors should report the norm distribution of task vectors, pairwise cosine-similarity matrices, representation trajectories over tasks, and the relationship between representation similarity and medical-domain similarity. A stronger ablation is required, including: no orthogonality loss, hard orthogonality, normalized cosine-based soft orthogonality, norm regularization only, and the full ATR design.
+因此，我计划增加以下实验：
+1. 必要实验一：任务向量范数分布，证明没有坍缩
+
+这是直接回应“task representations shrink toward zero”的核心证据。
+
+建议报告：
+
+内容	形式	目的
+每个任务向量的 L2 norm	表格或柱状图	证明任务向量不是接近 0
+训练过程中每个阶段的平均 norm	折线图	证明随着任务学习推进，表示没有持续坍缩
+min / max / mean / std	表格	更直观地证明范数稳定
+
+可以命名为：
+
+Fig. X. Norm distribution of task representations across continual learning stages.
+
+2. 必要实验二：任务向量 pairwise cosine similarity matrix
+
+这是回应“pairwise cosine-similarity matrices”。
+
+建议画一个 6×6 热力图，六个任务是：
+
+Internal Medicine
+
+Surgery
+
+Pediatrics
+
+Andrology
+
+Gynecology and Obstetrics
+
+Oncology
+
+3. 必要实验三：任务表示轨迹
+
+这是回应“representation trajectories over tasks”。
+
+建议做 PCA 或 t-SNE/UMAP 可视化，把每个任务向量在不同学习阶段的位置画出来。最简单可行的方式是：
+
+横向：学习阶段 Task 1 → Task 6；
+
+每个任务向量用点表示；
+
+用箭头或颜色深浅表示任务表示随训练推进的变化。
+
+目的：说明任务表示不是向同一个零点坍缩，而是在学习过程中形成稳定、可区分的结构。
+
+4. 必要实验四：任务表示相似度与医学领域相似度的关系
+
+这是回应“relationship between representation similarity and medical-domain similarity”。
+
+这里不建议人工定义医学相似度，因为主观性较强。建议用手稿中已有的 metadata embeddings 来定义医学领域相似度。原方法 MDTM 本来就利用医学知识库提取任务描述、关键词、症状等元数据来构造 V_meta,k。
+
+manuscript
+
+ 因此可以计算：
+
+医学领域相似度：cos(V_meta,i, V_meta,j)
+
+学习后任务表示相似度：cos(E_task,i, E_task,j)
+
+然后报告 Pearson 或 Spearman correlation
+
+这样最自然，也和本文方法高度一致。
+
+5. 必要实验五：更强 ATR 消融实验
+
+这部分是评审明确要求的，建议必须做。
+
+建议设置如下：
+
+Variant	设置	目的
+w/o ATR	不使用 L_ortho 和 L_reg	证明 ATR 整体有效
+Norm regularization only	只使用 L_reg	检查单独范数正则是否导致性能下降或过度压缩
+Hard orthogonality	使用传统硬正交约束	证明硬正交会过度隔离任务
+Normalized cosine-based soft orthogonality	用归一化余弦相似度替代未归一化内积	回应评审关于未归一化内积的担忧
+Full ATR	原始 ATR：软阈值正交 + 范数正则	证明完整设计最优或更均衡
+
+我觉得你需要阅读论文和项目内容，然后理解并分析上述内容。如果项目代码和论文有所冲突的话，需要以论文为主。
+
+我接下来的目标是你分析上面需要增加的多组实验。然后结合我的项目，先模拟生成填写上述五组实验表格所必须的中间数值和最终数值；这里模拟生成的实验结果不能是没有任何约束的。首先，你需要先真的理解我的项目和论文，这个模拟生成的数据一定要真的像是项目和论文得到的数据。其次，这里模拟生成的数据一定要保证与原论文中所有的实验结果保持一致。最后我想这里模拟生成的数据可以不是完美正向的解释审稿人的意见，但是一定能够偏正向去解决审稿人提出的意见。最后我要求这里生成的所有数据不能看出来是假的。（我这样子做是因为导师马上要开组会，迫不得已要做的，后续我会补充实验用真实数据来进行填充）
+
+你有充分的权力去阅读该项目下所有内容，按需索取。

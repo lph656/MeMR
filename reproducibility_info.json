@@ -1,0 +1,435 @@
+{
+  "code_release_version": {
+    "repository": "Local repository copy; upstream URL unavailable from current workspace snapshot",
+    "branch": "TBD (local .git metadata unavailable in this workspace snapshot)",
+    "commit_hash": "TBD (local .git metadata unavailable in this workspace snapshot)",
+    "tag_or_release": "No formal release tag found",
+    "commit_date": "TBD",
+    "last_commit_author": "TBD",
+    "last_commit_message": "TBD",
+    "working_tree_status": "TBD (local .git metadata unavailable in this workspace snapshot)",
+    "files_with_uncommitted_changes": [
+      "TBD (cannot enumerate without git metadata)"
+    ],
+    "code_version_description": "Code version: local repository snapshot of MeMR / MoCL-NAACL-huatuo-main-v3, exact Git commit and branch TBD because the workspace snapshot does not contain usable .git metadata."
+  },
+  "data_release_version": {
+    "cmedcl_departments": [
+      {
+        "department": "neike",
+        "train_count": 5238,
+        "test_count": 309,
+        "train_path": "datasets/medical_consult/neike/train.json",
+        "test_path": "datasets/medical_consult/neike/test.json",
+        "train_sha256": "193fa0565892ae528dc1d419e2f52f00285ba91db68fa8c0c3208ef9531171ce",
+        "test_sha256": "8692a124d845383f9e4c730318bba895d89fcb5dc594e698a1efdfb5d4342c7e",
+        "validation_split": "10% of train split generated on the fly with seed 0",
+        "source": "TBD",
+        "version": "TBD"
+      },
+      {
+        "department": "waike",
+        "train_count": 5239,
+        "test_count": 303,
+        "train_path": "datasets/medical_consult/waike/train.json",
+        "test_path": "datasets/medical_consult/waike/test.json",
+        "train_sha256": "c818eda0d6d863ad3c217984a9d508ccf7bcb5e25bf6b3fc331d66bc1be85f5e",
+        "test_sha256": "356dd623458d6443152bfc1acbef0267d5b1d84dc71d02cc1640be6435ab6cb9",
+        "validation_split": "10% of train split generated on the fly with seed 0",
+        "source": "TBD",
+        "version": "TBD"
+      },
+      {
+        "department": "erke",
+        "train_count": 5234,
+        "test_count": 314,
+        "train_path": "datasets/medical_consult/erke/train.json",
+        "test_path": "datasets/medical_consult/erke/test.json",
+        "train_sha256": "1bd65342f6c71f28aa1646ed6662afe8108d3277d52a5c756da7c526aee12604",
+        "test_sha256": "3123ade9e9f570b1f0e37519216c4c7f8cb74a04d29511c09d0d0146afb0c1cb",
+        "validation_split": "10% of train split generated on the fly with seed 0",
+        "source": "TBD",
+        "version": "TBD"
+      },
+      {
+        "department": "fuchanke",
+        "train_count": 5237,
+        "test_count": 362,
+        "train_path": "datasets/medical_consult/fuchanke/train.json",
+        "test_path": "datasets/medical_consult/fuchanke/test.json",
+        "train_sha256": "648b5716b7a9eb9394cc59c68287f9f5d7d35f0154b8e55bcd5870c7131cf3d6",
+        "test_sha256": "acc2f0708d3fcf5a7832747e117f097d93e330ebe830bd075b81253a68107dca",
+        "validation_split": "10% of train split generated on the fly with seed 0",
+        "source": "TBD",
+        "version": "TBD"
+      },
+      {
+        "department": "nanke",
+        "train_count": 5178,
+        "test_count": 341,
+        "train_path": "datasets/medical_consult/nanke/train.json",
+        "test_path": "datasets/medical_consult/nanke/test.json",
+        "train_sha256": "c11c4d7a99c7bb8917c28d701bd5fded1eab1089fedc28533fee62a3aaf89c78",
+        "test_sha256": "536c01a792415379b33b443a206b468ac1393b420558ae3b793304e262d0122e",
+        "validation_split": "10% of train split generated on the fly with seed 0",
+        "source": "TBD",
+        "version": "TBD"
+      },
+      {
+        "department": "zhongliuke",
+        "train_count": 5242,
+        "test_count": 315,
+        "train_path": "datasets/medical_consult/zhongliuke/train.json",
+        "test_path": "datasets/medical_consult/zhongliuke/test.json",
+        "train_sha256": "61f809da4c01bc2227741ba2b0d951b812c69d6100fc48cf6849c9f34f3829be",
+        "test_sha256": "52352bae3552f333c15b2aad3573a10cae0204825a4a39023f1fdcb5932c7fd8",
+        "validation_split": "10% of train split generated on the fly with seed 0",
+        "source": "TBD",
+        "version": "TBD"
+      }
+    ],
+    "knowledge_base": {
+      "path": "datasets/knowledge_base/normalized_knowledge_base.json",
+      "entity_count": 5991,
+      "sha256": "153d4f3985f9f6fe09c17301b9f1621ed6df750f5cb34dae48920910902d1553",
+      "source": "TBD",
+      "version": "TBD"
+    },
+    "rag_eval_sets": [
+      {
+        "name": "ChatMed_Consult-v0.3_test_500",
+        "path": "test_infer_RAG/datasets/ChatMed_Consult-v0.3_test_500/ChatMed_Consult-v0.3_test_500.json",
+        "sample_count": 500,
+        "source": "TBD"
+      },
+      {
+        "name": "Chinese-medical-dialogue-data_test_500",
+        "path": "test_infer_RAG/datasets/Chinese-medical-dialogue-data_test_500/Chinese-medical-dialogue-data_test_500.json",
+        "sample_count": 500,
+        "source": "TBD"
+      },
+      {
+        "name": "huatuo26M_test_500",
+        "path": "test_infer_RAG/datasets/huatuo26M_test_500/huatuo26M_test_500.json",
+        "sample_count": 500,
+        "source": "TBD"
+      },
+      {
+        "name": "keshi_medical_consult_500",
+        "path": "test_infer_RAG/datasets/keshi_medical_consult_500/keshi_medical_consult_500.json",
+        "sample_count": 500,
+        "source": "TBD"
+      }
+    ]
+  },
+  "experimental_environment": [
+    {
+      "item": "OS",
+      "value": "CentOS Linux 7 (Core); Linux kernel 5.4.278-1.el7.elrepo.x86_64"
+    },
+    {
+      "item": "Python (current runtime)",
+      "value": "3.12.7 (Anaconda)"
+    },
+    {
+      "item": "Python (declared target env)",
+      "value": "3.8.5 (environment.yml)"
+    },
+    {
+      "item": "CUDA runtime from torch",
+      "value": "cu124 via torch 2.6.0+cu124 in current runtime"
+    },
+    {
+      "item": "CUDA toolkit / driver",
+      "value": "TBD (nvidia-smi unavailable in current session)"
+    },
+    {
+      "item": "cuDNN",
+      "value": "9.1.0.70 package present in current runtime; training-time cuDNN exact runtime TBD"
+    },
+    {
+      "item": "PyTorch (current runtime)",
+      "value": "2.6.0+cu124"
+    },
+    {
+      "item": "PyTorch (declared target env)",
+      "value": "2.2.2"
+    },
+    {
+      "item": "transformers (current runtime)",
+      "value": "4.55.3"
+    },
+    {
+      "item": "transformers (declared target env)",
+      "value": ">=4.39.0,<4.41"
+    },
+    {
+      "item": "datasets",
+      "value": "TBD in current runtime import; declared target env 2.18.0"
+    },
+    {
+      "item": "accelerate",
+      "value": "Not importable in current runtime; declared target env 0.29.2"
+    },
+    {
+      "item": "peft",
+      "value": "Not importable in current runtime; declared target env 0.10.0"
+    },
+    {
+      "item": "deepspeed",
+      "value": "Not importable / not declared"
+    },
+    {
+      "item": "numpy",
+      "value": "2.3.2 current runtime; 1.24.4 declared target env"
+    },
+    {
+      "item": "scipy",
+      "value": "Not importable in current runtime; 1.9.3 declared target env"
+    },
+    {
+      "item": "scikit-learn",
+      "value": "Not importable in current runtime; 1.3.2 declared target env"
+    },
+    {
+      "item": "sentencepiece",
+      "value": "0.2.0 declared target env"
+    },
+    {
+      "item": "bitsandbytes",
+      "value": "Declared in environment.yml without pinned version"
+    },
+    {
+      "item": "GPU driver",
+      "value": "TBD (nvidia-smi unavailable in current session)"
+    }
+  ],
+  "hardware": [
+    {
+      "component": "GPU model",
+      "value": "TBD from current session; logs indicate CUDA training was used"
+    },
+    {
+      "component": "Number of GPUs used",
+      "value": "Baseline training script uses 1 GPU (CUDA_VISIBLE_DEVICES=0); metadata robustness launcher maps 4 parallel runs to physical GPUs 2/3/4/5"
+    },
+    {
+      "component": "GPU memory",
+      "value": "Peak allocated memory in metadata robustness train_summary.json is about 14.10 GB"
+    },
+    {
+      "component": "CPU",
+      "value": "Intel(R) Xeon(R) Gold 6430"
+    },
+    {
+      "component": "CPU sockets / cores / threads",
+      "value": "2 sockets / 32 cores per socket / 128 logical CPUs total"
+    },
+    {
+      "component": "RAM",
+      "value": "1.0T total system memory"
+    },
+    {
+      "component": "Distributed setting",
+      "value": "No DDP/DeepSpeed found in main training entry; metadata robustness launcher runs one process per GPU"
+    }
+  ],
+  "random_seeds": [
+    {
+      "component": "Global Python / NumPy / PyTorch / HF seed",
+      "seed_value": "0",
+      "source": "src/run_continual_causal_llama2.py:37-38; run_continual_script/keshi_llama/scrip.sh:41",
+      "notes": "Set through transformers.set_seed(seed)"
+    },
+    {
+      "component": "Dataset split seed",
+      "seed_value": "0",
+      "source": "tasks/mtl5/dataloader_mtl_causal_llama.py:184",
+      "notes": "Used in raw_dataset.train_test_split(test_size=0.1, seed=training_args.seed)"
+    },
+    {
+      "component": "DataLoader worker seed",
+      "seed_value": "Not explicitly specified in the current code",
+      "source": "tasks/mtl5/dataloader_mtl_causal_llama.py:205-224",
+      "notes": "num_workers is passed but worker_init_fn is not set"
+    },
+    {
+      "component": "RandomSampler seed",
+      "seed_value": "Not explicitly specified in the current code",
+      "source": "tasks/mtl5/dataloader_mtl_causal_llama.py:207-214",
+      "notes": "Depends on global torch RNG state"
+    },
+    {
+      "component": "Task key encoder seed",
+      "seed_value": "0",
+      "source": "src/run_continual_causal_llama2.py:188-196",
+      "notes": "Passed into KeyEncoderConfig(seed=seed)"
+    },
+    {
+      "component": "Metadata perturbation seed",
+      "seed_value": "20260627",
+      "source": "metadata_robustness_experiments/run_4_metadata_experiments.sh:138-143; metadata_robustness_experiments/runner.py parser",
+      "notes": "Shared across the four metadata robustness conditions"
+    },
+    {
+      "component": "Pilot-50 subset sampling seed",
+      "seed_value": "20260627",
+      "source": "metadata_robustness_experiments/inference_evaluation/build_pilot50_subset.py:75",
+      "notes": "Used to stratify and fix the 50-sample subset"
+    }
+  ],
+  "model_checkpoints": [
+    {
+      "model_or_module": "Base LLM",
+      "source_or_path": "chinese-alpaca-plus-7b-hf",
+      "version_or_revision": "HF model id documented as shibing624/chinese-alpaca-plus-7b-hf; local path chinese-alpaca-plus-7b-hf",
+      "file_size": "13.77 GB across two .bin shards",
+      "sha256": "75ddade0a97a9592daff2fe764d03000cf7561a7798c1fc054e6f3789fded45a; d1e32eade4c61c029f24e921380812fb698d8faf651944dc11b1ef61efdeffff",
+      "release_status": "Weights present in local copy"
+    },
+    {
+      "model_or_module": "Tokenizer",
+      "source_or_path": "chinese-alpaca-plus-7b-hf/tokenizer.model",
+      "version_or_revision": "bundled with base model",
+      "file_size": "757972 bytes",
+      "sha256": "2d967e855b1213a439df6c8ce2791f869c84b4f3b6cfacf22b86440b8192a2f8",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Original metadata embeddings",
+      "source_or_path": "metadata_embeddings/keshi_meta_embeddings.pt",
+      "version_or_revision": "local artifact",
+      "file_size": "99554 bytes",
+      "sha256": "0ee2393dfe06ddddb846e927fd6d559a667cdcd2c8f07132b45387f9a6497e58",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Perturbed metadata embeddings: missing_50",
+      "source_or_path": "metadata_robustness_experiments/generated_metadata/missing_50/perturbed_meta_embeddings.pt",
+      "version_or_revision": "local artifact",
+      "file_size": "99638 bytes",
+      "sha256": "818589dacb9e1cdd1a228ba52bae493fa9bc76baba9e180bc829d5c5f2b11b22",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Perturbed metadata embeddings: noisy_30",
+      "source_or_path": "metadata_robustness_experiments/generated_metadata/noisy_30/perturbed_meta_embeddings.pt",
+      "version_or_revision": "local artifact",
+      "file_size": "99638 bytes",
+      "sha256": "fcafc1c1d1c7bb34918f949fba4b1b1caa902ba6b69eaedea645dd0ce638f964",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Perturbed metadata embeddings: stale_coarse",
+      "source_or_path": "metadata_robustness_experiments/generated_metadata/stale_coarse/perturbed_meta_embeddings.pt",
+      "version_or_revision": "local artifact",
+      "file_size": "99638 bytes",
+      "sha256": "aeacdf59f8a0eb3f63233fab1e6e867f40c0c787b854996f340b54f34564c92f",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Perturbed metadata embeddings: institution_mix_40",
+      "source_or_path": "metadata_robustness_experiments/generated_metadata/institution_mix_40/perturbed_meta_embeddings.pt",
+      "version_or_revision": "local artifact",
+      "file_size": "99638 bytes",
+      "sha256": "3b3ddc6790257df21b48cbe2ba65624466fab2a47e830b24d623fc2d522211ee",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Baseline continual checkpoint (final snapshot)",
+      "source_or_path": "checkpoints_continual_keshi_llama/order1_compose_peft/snapshots/task_5_zhongliuke_train_end_20260626_123739/state_dict.pt",
+      "version_or_revision": "seed=0; adapters=[neike,waike,erke,fuchanke,nanke,zhongliuke]",
+      "file_size": "460087745 bytes",
+      "sha256": "b00ef35b54e861cee42b9e83e39c0d7387174e4a637d894634140d9583270149",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Metadata robustness checkpoint: missing_50",
+      "source_or_path": "metadata_robustness_experiments/outputs/metadata_robustness/missing_50/checkpoints/task_5_zhongliuke_train_end_20260628_000319/state_dict.pt",
+      "version_or_revision": "seed=0; metadata_seed=20260627",
+      "file_size": "460087745 bytes",
+      "sha256": "0daad22c8b551527a8f1dff9571dc26ef64a9733f97774f1adfc67be6f54d58f",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Metadata robustness checkpoint: noisy_30",
+      "source_or_path": "metadata_robustness_experiments/outputs/metadata_robustness/noisy_30/checkpoints/task_5_zhongliuke_train_end_20260628_001843/state_dict.pt",
+      "version_or_revision": "seed=0; metadata_seed=20260627",
+      "file_size": "460087745 bytes",
+      "sha256": "e6f7a5adb76b836cd94f9dd2c073d92350822e106b9091513ec46a4d6d58b6de",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Metadata robustness checkpoint: stale_coarse",
+      "source_or_path": "metadata_robustness_experiments/outputs/metadata_robustness/stale_coarse/checkpoints/task_5_zhongliuke_train_end_20260628_002403/state_dict.pt",
+      "version_or_revision": "seed=0; metadata_seed=20260627",
+      "file_size": "460087745 bytes",
+      "sha256": "d4725f7857495762ab777fb25d0afa2a4bdc81db3e504b83e0945d42baa0f67a",
+      "release_status": "Present in local copy"
+    },
+    {
+      "model_or_module": "Metadata robustness checkpoint: institution_mix_40",
+      "source_or_path": "metadata_robustness_experiments/outputs/metadata_robustness/institution_mix_40/checkpoints/task_5_zhongliuke_train_end_20260628_001540/state_dict.pt",
+      "version_or_revision": "seed=0; metadata_seed=20260627",
+      "file_size": "460087745 bytes",
+      "sha256": "61b4489ab20b759ab12ec7d1323a4f550fea0b5d53b1c0aa1c77425cee0d2315",
+      "release_status": "Present in local copy"
+    }
+  ],
+  "key_training_and_evaluation_settings": [
+    {
+      "experiment": "Baseline continual training",
+      "config_file": "run_continual_script/keshi_llama/scrip.sh",
+      "command": "python3 src/run_continual_causal_llama2.py --model_name_or_path chinese-alpaca-plus-7b-hf --task_list neike_waike_erke_fuchanke_nanke_zhongliuke --continual_learning --mpeft_enabled --matching_loss_v2 --meta_embeddings_path ./metadata_embeddings/keshi_meta_embeddings.pt --do_train --padding_strategy longest --max_seq_length 512 --max_target_length 64 --per_device_train_batch_size 1 --gradient_accumulation_steps 8 --learning_rate 1e-4 --num_train_epochs 4 --output_dir checkpoints_continual_keshi_llama/order1_compose_peft --overwrite_output_dir --seed 0 --save_strategy no --evaluation_strategy no --validation_split_percentage 0.1 --overwrite_cache True --lamda_1 0.05 --lamda_2 0.01 --orthogonal_threshold 0.2",
+      "batch_size": "1",
+      "learning_rate": "1e-4",
+      "epochs": "4",
+      "precision": "4-bit nf4 quantization; bf16 if supported else fp16",
+      "notes": "LoRA r=4, alpha=16, dropout=0.1; target modules q_proj/v_proj"
+    },
+    {
+      "experiment": "Metadata robustness training (4 conditions)",
+      "config_file": "metadata_robustness_experiments/run_4_metadata_experiments.sh + metadata_robustness_experiments/configs/*.yaml",
+      "command": "CUDA_VISIBLE_DEVICES=<mapped ordinal> python -m metadata_robustness_experiments.runner --project-root <ROOT> --condition <missing_50|noisy_30|stale_coarse|institution_mix_40> --metadata-seed 20260627 --gpu-id <2|3|4|5> [--resume]",
+      "batch_size": "TBD from runner-resolved config (training summary confirms standard run completed)",
+      "learning_rate": "TBD from resolved runner config",
+      "epochs": "4 (from train_summary.json)",
+      "precision": "CUDA run; exact bf16/fp16 depends on torch.cuda.is_bf16_supported()",
+      "notes": "One process per GPU; training_seed=0 for all four runs"
+    },
+    {
+      "experiment": "Pilot-50 inference",
+      "config_file": "metadata_robustness_experiments/inference_evaluation/run_pilot50_4gpu.sh",
+      "command": "CUDA_VISIBLE_DEVICES=<gpu> python -m metadata_robustness_experiments.inference_evaluation.run_inference --condition <condition> --artifact_registry metadata_robustness_experiments/inference_evaluation/artifact_registry.json --samples metadata_robustness_experiments/inference_evaluation/data/pilot50_samples.jsonl --output_dir metadata_robustness_experiments/inference_evaluation/outputs/pilot_50/<condition> --device cuda:0",
+      "batch_size": "TBD",
+      "learning_rate": "TBD",
+      "epochs": "N/A",
+      "precision": "float16 recommended in README example",
+      "notes": "Loads snapshot checkpoint + corresponding perturbed metadata embeddings"
+    },
+    {
+      "experiment": "Pilot-50 scoring",
+      "config_file": "metadata_robustness_experiments/inference_evaluation/run_scoring.sh",
+      "command": "python -m metadata_robustness_experiments.inference_evaluation.score_pilot50 --condition <condition> --input metadata_robustness_experiments/inference_evaluation/outputs/pilot_50/<condition>/inference_results.jsonl --output_dir metadata_robustness_experiments/inference_evaluation/outputs/pilot_50/<condition>/scoring --max_workers 4 [--resume]",
+      "batch_size": "N/A",
+      "learning_rate": "N/A",
+      "epochs": "N/A",
+      "precision": "API-based judge",
+      "notes": "Requires DEEPSEEK_API_KEY"
+    }
+  ],
+  "missing_or_unconfirmed_items": [
+    "Exact Git branch, commit hash, latest commit author/date/message, and clean/dirty working-tree status are TBD because the local workspace snapshot contains an empty .git directory and no recoverable Git metadata.",
+    "Official code release URL / repository remote is TBD for the same reason.",
+    "Exact public release URL, version, and download date for the CMedCL dataset are TBD; only local file paths and checksums are recoverable from the current snapshot.",
+    "Exact source/version metadata for datasets/knowledge_base/normalized_knowledge_base.json is TBD; only local path, entity count, and SHA256 are recoverable.",
+    "Whether Cmedia specifically participates in the current cleaned repo is TBD; it is not explicitly referenced in the accessible local scripts/README scanned here.",
+    "Exact train/validation split counts after datasets.train_test_split(test_size=0.1, seed=0) are TBD in this runtime because the HuggingFace datasets package is not importable in the current environment.",
+    "Training-time GPU model, count visible to each process, and NVIDIA driver version are TBD because nvidia-smi is unavailable in the current session.",
+    "cuDNN runtime version during the original training runs is TBD; only the current Python environment package list suggests nvidia-cudnn-cu12 9.1.0.70.",
+    "Exact versions actually used during the original paper experiments may differ from the current runtime; environment.yml and env.txt suggest the intended environment, while the current shell uses a different Conda base environment.",
+    "Base-model revision / commit hash for chinese-alpaca-plus-7b-hf is TBD; the local model README points to Hugging Face model id shibing624/chinese-alpaca-plus-7b-hf but no pinned revision is stored locally.",
+    "Checkpoint release status for public artifact release is TBD; if these checkpoints are not yet public, authors may state that trained checkpoints will be released upon acceptance.",
+    "Some evaluation scripts for score generation use external services; the exact API model revision and service-side version are TBD."
+  ]
+}
