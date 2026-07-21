@@ -1,9 +1,0 @@
-Comments: Dataset construction and split integrity require substantial detail. CMedCL is derived from Cmedia, but Cmedia is also used as an alleged independent generalization dataset. This raises a serious risk of direct or semantic train-test overlap. The authors should provide exact and near-duplicate removal procedures, source-level split rules, overlap statistics, and examples of removed duplicates. Without this evidence, the Cmedia generalization results cannot be interpreted as independent evaluation. The paper should additionally provide the complete data-cleaning prompt, the LLM used for cleaning, model version, temperature, filtering criteria, human validation protocol, exclusion statistics, department-labeling procedure, answer-length distribution, question-length distribution, number of dialogue turns, and release license. The authors should clarify whether semantic smoothing changes clinical content or introduces synthetic artifacts.
-
-现在我的手稿存在上面一个评审意见，我需要点对点回复该评审意见，根据该评审意见，总结我需要做几个实验。
-如果不训练就可以完美回复这条评审意见就不做实验，如果训练才可以，那就训练。
-目前我共有5张卡可并行运行。结合上述内容给出新增实验的代码，新增实验要保证不侵犯原始项目结构以及原始项目代码。
-完成新增实验代码的完整代码撰写后，给出每个终端（最多可以选择5个，因为有5张卡可用，编号分别为0，1，2，3，4）的执行命令分别是什么。
-需要明确我们做了上面这些实验得到哪些实验结果，实验结果保存在哪里。都需要解释清楚。
-最后，要保证这次运行后得到的实验结果能够充分回复该评论。
-不需要运行，不需要配环境。

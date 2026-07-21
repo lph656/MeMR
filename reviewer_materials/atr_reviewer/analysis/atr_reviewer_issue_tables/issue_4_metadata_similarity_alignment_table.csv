@@ -1,8 +1,0 @@
-source,name,pearson_task_vs_metadata_cosine,spearman_task_vs_metadata_cosine,mean_abs_task_minus_metadata_cosine_gap
-variant,wo_atr,0.999998941020658,1.0,0.000238
-variant,norm_only,0.999991760875132,1.0,0.000641
-variant,hard_orth,0.9996653736353135,1.0,0.001544
-variant,cosine_soft_orth,0.9998146786854744,1.0,0.000465
-variant,full_atr,0.9996653736353135,1.0,0.001544
-variant,lm_off_full_atr,0.9999999999999999,1.0,0.0
-baseline,order1_compose_peft,0.8147679096114939,0.8142857142857142,0.032484

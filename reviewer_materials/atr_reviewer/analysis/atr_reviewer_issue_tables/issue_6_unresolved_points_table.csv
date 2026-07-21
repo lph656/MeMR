@@ -1,4 +1,0 @@
-sub_issue,required_artifact,current_status,can_reply_now,reason
-LM objective prevents collapse,complete lm_off_full_atr atr_reviewer_eval directory and a clear causal interpretation,partial,partially,"The completed `lm_off_full_atr` run shows much worse text performance and near-perfect preservation of metadata geometry, but it does not show collapse toward zero."
-full ATR is better balanced than hard orth,cleanly differentiated full_atr vs hard_orth runs,unsupported,no,"The current `full_atr` and `hard_orth` final task-vector states are identical, so the comparison is not trustworthy."
-normalized cosine soft orth is a stronger alternative to the original design,stable cosine_soft_orth vs full_atr comparison without training pathologies,unsupported,no,Both variants need to be compared under stable runs; current logs contain extensive NaN/Inf warnings.
